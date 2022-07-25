@@ -18,7 +18,7 @@ func NewRootCMD() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		genGinApiCommand(),
+		genGinCommand(),
 		resourcesCommand(),
 		//addCommand(),
 		//deleteCommand(),
