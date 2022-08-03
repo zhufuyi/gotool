@@ -9,6 +9,8 @@ import (
 
 // CreateUserExampleRequest 请求参数
 type CreateUserExampleRequest struct {
+	// binding使用说明 https://github.com/go-playground/validator
+
 	/* todo
 	Name   string `form:"name" binding:"min=1"`
 	Age    int    `form:"age" binding:"gt=0,lt=120"`
@@ -28,7 +30,7 @@ func (s *Service) CreateUserExample(req *CreateUserExampleRequest) error {
 	return s.dao.CreateUserExample(data)
 }
 
-// DeleteUserExampleRequest // 删除一个id时，从url参数
+// DeleteUserExampleRequest 删除一个id时，从url参数
 type DeleteUserExampleRequest struct {
 	ID uint64 `form:"id" binding:"gt=0"`
 }
@@ -100,23 +102,29 @@ func (s *Service) GetUserExample(req *GetUserExampleRequest) (*model.UserExample
 
 // GetUserExamplesRequest 请求参数
 type GetUserExamplesRequest struct {
-	// get url原生请求参数，用来填充Exps、Logics的默认值
-	// 如果ParamSrc为空，必须满足len(Keys)=len(Values)=len(Exps)=len(Logics)
-	ParamSrc string `form:"-" binding:"-"`
-
-	Keys   []string      `form:"k" binding:"-"`
-	Values []interface{} `form:"v" binding:"-"`
-	Exps   []string      `form:"exp" binding:"-"`
-	Logics []string      `form:"logic" binding:"-"`
-
 	Page int    `form:"page" binding:"gte=0"`
 	Size int    `form:"size" binding:"gt=0"`
 	Sort string `form:"sort" binding:"-"`
+
+	// 参数填写方式一：从request请求url中获取参数(form.URLParams = c.Request.URL.RawQuery)，
+	// 用来自动填充exp、logic的默认值，为了在url参数减少填写exp和logic的默认值，例如url参数?page=0&size=20&exp=gt&k=age&v=22&k=gender&v=1，表示查询年龄大于22岁的男性
+	// 参数填写方式二：没有从请求url中获取参数，也就是ParamSrc为空时，请求url参数必须满足len(k)=len(v)=len(exp)=len(logic)，
+	// 可以同时存在多个，也可以同时不存在，例如url参数?page=0&size=20&k=age&v=22&exp=gt&logic=and&k=gender&v=1&exp=eq&logic=and，也是表示查询年龄大于22岁的男性
+	// 两种url参数都是合法，建议使用第一种
+	URLParams string   `form:"-" binding:"-"`
+	Keys      []string `form:"k" binding:"-"`
+	Values    []string `form:"v" binding:"-"`
+	Exps      []string `form:"exp" binding:"-"`
+	Logics    []string `form:"logic" binding:"-"`
 }
 
 // GetUserExamples 获取多条记录
 func (s *Service) GetUserExamples(req *GetUserExamplesRequest) ([]*model.UserExample, int, error) {
-	columns, err := mysql.GetColumns(req.Keys, req.Values, req.Exps, req.Logics, req.ParamSrc)
+	var values []interface{}
+	for _, v := range req.Values {
+		values = append(values, v)
+	}
+	columns, err := mysql.GetColumns(req.Keys, values, req.Exps, req.Logics, req.URLParams)
 	if err != nil {
 		return nil, 0, err
 	}

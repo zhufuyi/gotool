@@ -12,8 +12,8 @@ func init() {
 
 func userExampleRouter(group *gin.RouterGroup) {
 	group.POST("/userExample", v1.CreateUserExample)
-	//group.DELETE("/userExample", v1.DeleteUserExample)
-	group.DELETE("/userExamples", v1.DeleteUserExamples)
+	group.DELETE("/userExample", v1.DeleteUserExample)
+	//group.DELETE("/userExamples", v1.DeleteUserExamples)
 	group.PUT("/userExample", v1.UpdateUserExample)
 	group.GET("/userExample/:id", v1.GetUserExample)
 	group.GET("/userExamples", v1.GetUserExamples)

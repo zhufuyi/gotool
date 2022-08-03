@@ -73,7 +73,7 @@ Examples:
 }
 
 func runGenApiCommand(apiName string, projectName string, outPath string) error {
-	templateIgnoreFiles := []string{"dao.go", "common_code.go", "service.go", "routers.go", "global.go"}
+	templateIgnoreFiles := []string{"dao.go", "common_code.go", "service.go", "routers.go", "global.go", "conf.go"}
 	templateApiName := "UserExample"
 	templatePkgName := "github.com/zhufuyi/goctl/templates/api"
 
