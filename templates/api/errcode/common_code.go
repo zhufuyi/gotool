@@ -15,3 +15,7 @@ var (
 	Forbidden           = errcode.Forbidden
 	LimitExceed         = errcode.LimitExceed
 )
+
+func genCode(NO int) int {
+	return 100000 + NO*100
+}

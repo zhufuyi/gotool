@@ -1,7 +1,7 @@
 package global
 
 import (
-	"github.com/zhufuyi/goctl/templates/web/configs"
+	"github.com/zhufuyi/goctl/templates/api/configs"
 	"github.com/zhufuyi/pkg/mysql"
 )
 

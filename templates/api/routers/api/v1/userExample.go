@@ -98,7 +98,7 @@ func UpdateUserExample(c *gin.Context) {
 
 // GetUserExample 获取一条记录
 func GetUserExample(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 0)
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	form := &service.GetUserExampleRequest{ID: id}
 	err := c.ShouldBindQuery(form)
 	if err != nil {
@@ -110,7 +110,7 @@ func GetUserExample(c *gin.Context) {
 	svc := service.New(c.Request.Context())
 	userExample, err := svc.GetUserExample(form)
 	if err != nil {
-		logger.Error("GetUserExample error", logger.Err(err), logger.Any("form", form))
+		logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
 		if err.Error() == mysql.ErrNotFound.Error() {
 			render.Error(c, errcode.NotFound)
 		} else {
@@ -123,6 +123,13 @@ func GetUserExample(c *gin.Context) {
 }
 
 // GetUserExamples 获取多条记录
+// 通过url参数作为查询条件，支持任意多个字段，下面以user表为例子get请求参数，不同条件查询第0页20条记录，默认是id降序
+// 没有条件查询 ?page=0&size=20
+// 名称查询 ?page=0&size=20&k=name&v=张三
+// 名称模糊查询 ?page=0&size=20&k=name&v=张&exp=like
+// 年龄为18岁的男性 ?page=0&size=20&k=age&v=22&gender=1
+// 年龄小于18或者大于60的人 ?page=0&size=20&k=age&v=18&exp=gt&logic=or&k=age&v=60&exp=lt
+// 排序可以在参数添加sort字段，例如sort=id表示id升序，sort=-id表示id降序
 func GetUserExamples(c *gin.Context) {
 	form := &service.GetUserExamplesRequest{}
 	err := c.ShouldBindQuery(form)
@@ -131,11 +138,12 @@ func GetUserExamples(c *gin.Context) {
 		render.Error(c, errcode.InvalidParams)
 		return
 	}
+	form.URLParams = c.Request.URL.RawQuery
 
 	svc := service.New(c.Request.Context())
 	userExamples, total, err := svc.GetUserExamples(form)
 	if err != nil {
-		logger.Error("GetUserExample error", logger.Err(err), logger.Any("form", form))
+		logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
 		render.Error(c, errcode.GetUserExampleErr)
 		return
 	}
@@ -159,7 +167,7 @@ func GetUserExamples2(c *gin.Context) {
 	svc := service.New(c.Request.Context())
 	userExamples, total, err := svc.GetUserExamples2(form)
 	if err != nil {
-		logger.Error("GetUserExample error", logger.Err(err), logger.Any("form", form))
+		logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
 		render.Error(c, errcode.GetUserExampleErr)
 		return
 	}
