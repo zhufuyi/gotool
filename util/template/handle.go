@@ -37,7 +37,7 @@ func New(path string, fs embed.FS) (*TemplateInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &TemplateInfo{
 		path:              path,
 		fs:                fs,

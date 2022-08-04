@@ -31,15 +31,18 @@ Examples:
 
 const (
 	// api资源
-	api = "api"
+	apiResource = "api"
 	// web资源
-	web = "web"
+	webResource = "web"
+	// user资源
+	userResource = "user"
 )
 
 // 支持的资源名称列表
 var resourceNames = []string{
-	api,
-	web,
+	apiResource,
+	webResource,
+	userResource,
 }
 
 // ListResourceNames 资源名称列表

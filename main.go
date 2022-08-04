@@ -17,15 +17,24 @@ var apiFS embed.FS
 //go:embed templates/web
 var webFS embed.FS
 
+// user模板目录
+//go:embed templates/user
+var userFS embed.FS
+
 func initTemplates() {
 	var err error
 
-	global.ApiTemplate, err = template.New("templates/api", apiFS)
+	global.ApiTemplater, err = template.New("templates/api", apiFS)
 	if err != nil {
 		panic(err)
 	}
 
-	global.WebTemplate, err = template.New("templates/web", webFS)
+	global.WebTemplater, err = template.New("templates/web", webFS)
+	if err != nil {
+		panic(err)
+	}
+
+	global.UserTemplater, err = template.New("templates/user", userFS)
 	if err != nil {
 		panic(err)
 	}
