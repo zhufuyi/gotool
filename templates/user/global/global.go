@@ -2,8 +2,8 @@ package global
 
 import (
 	"github.com/zhufuyi/goctl/templates/user/configs"
-	"github.com/zhufuyi/pkg/email"
 
+	"github.com/zhufuyi/pkg/email"
 	"github.com/zhufuyi/pkg/mysql"
 )
 

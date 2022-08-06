@@ -35,18 +35,15 @@ func CreateUserExample(c *gin.Context) {
 
 // DeleteUserExample 删除一条记录
 func DeleteUserExample(c *gin.Context) {
-	form := &service.DeleteUserExampleRequest{}
-	err := c.ShouldBindQuery(form)
-	if err != nil {
-		logger.Error("ShouldBindJSON error: ", logger.Err(err))
-		render.Error(c, errcode.InvalidParams)
+	id, isAbout := getIDFromPath(c)
+	if isAbout {
 		return
 	}
 
 	svc := service.New(c.Request.Context())
-	err = svc.DeleteUserExample(form.ID)
+	err := svc.DeleteUserExample(id)
 	if err != nil {
-		logger.Error("DeleteUserExample error", logger.Err(err), logger.Any("form", form))
+		logger.Error("DeleteUserExample error", logger.Err(err), logger.Any("id", id))
 		render.Error(c, errcode.DeleteUserExampleErr)
 		return
 	}
@@ -77,6 +74,11 @@ func DeleteUserExamples(c *gin.Context) {
 
 // UpdateUserExample 更新
 func UpdateUserExample(c *gin.Context) {
+	id, isAbout := getIDFromPath(c)
+	if isAbout {
+		return
+	}
+
 	form := &service.UpdateUserExampleRequest{}
 	err := c.ShouldBindJSON(form)
 	if err != nil {
@@ -84,6 +86,7 @@ func UpdateUserExample(c *gin.Context) {
 		render.Error(c, errcode.InvalidParams)
 		return
 	}
+	form.ID = id
 
 	svc := service.New(c.Request.Context())
 	err = svc.UpdateUserExample(form)
@@ -98,23 +101,20 @@ func UpdateUserExample(c *gin.Context) {
 
 // GetUserExample 获取一条记录
 func GetUserExample(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-	form := &service.GetUserExampleRequest{ID: id}
-	err := c.ShouldBindQuery(form)
-	if err != nil {
-		logger.Error("ShouldBindJSON error: ", logger.Err(err))
-		render.Error(c, errcode.InvalidParams)
+	id, isAbout := getIDFromPath(c)
+	if isAbout {
 		return
 	}
 
+	form := &service.GetUserExampleRequest{ID: id}
 	svc := service.New(c.Request.Context())
 	userExample, err := svc.GetUserExample(form)
 	if err != nil {
 		if err.Error() == mysql.ErrNotFound.Error() {
-			logger.Warn("GetUserExampleByID warn", logger.Err(err), logger.Any("form", form))
+			logger.Warn("GetUserExample warn", logger.Err(err), logger.Any("form", form))
 			render.Error(c, errcode.NotFound)
 		} else {
-			logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
+			logger.Error("GetUserExample error", logger.Err(err), logger.Any("form", form))
 			render.Error(c, errcode.GetUserExampleErr)
 		}
 		return
@@ -177,4 +177,16 @@ func GetUserExamples2(c *gin.Context) {
 		"userExamples": userExamples,
 		"total":        total,
 	})
+}
+
+func getIDFromPath(c *gin.Context) (uint64, bool) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil || id == 0 {
+		logger.Error("ParseUint error: ", logger.String("idStr", idStr))
+		render.Error(c, errcode.InvalidParams)
+		return 0, true
+	}
+
+	return id, false
 }

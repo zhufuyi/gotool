@@ -13,7 +13,7 @@ import (
 
 type routerFn func(*gin.RouterGroup)
 
-var routerFns []routerFn
+var routerFns []routerFn // 各个api路由集合
 
 // NewRouter 实例化路由
 func NewRouter() *gin.Engine {

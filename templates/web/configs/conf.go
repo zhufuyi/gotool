@@ -27,9 +27,6 @@ type Conf struct {
 	// 是否开启go profile
 	IsEnableProfile bool `json:"isEnableProfile" yaml:"isEnableProfile"`
 
-	// 是否开启鉴权
-	IsUseAuth bool `json:"isUseAuth" yaml:"isUseAuth"`
-
 	// mysql配置
 	MysqlURL string `json:"mysqlURL" yaml:"mysqlURL"`
 

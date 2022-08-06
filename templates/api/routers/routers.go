@@ -10,9 +10,9 @@ import (
 
 type routerFn func(*gin.RouterGroup)
 
-var routerFns []routerFn
+var routerFns []routerFn // 各个api路由集合
 
-// NewRouter 实例化路由
+// NewRouter 新建路由
 func NewRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())

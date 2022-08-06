@@ -12,9 +12,6 @@ writeTimeout: 30
 # 是否开启性能分析功能，true:开启，false:关闭
 isEnableProfile: false
 
-# 是否开启鉴权
-isUseAuth: false
-
 # mysql配置
 mysqlURL: "root:123456@(192.168.3.37:3306)/test?charset=utf8mb4&parseTime=true"
 

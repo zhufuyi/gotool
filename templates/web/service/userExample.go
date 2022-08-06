@@ -30,11 +30,6 @@ func (s *Service) CreateUserExample(req *CreateUserExampleRequest) error {
 	return s.dao.CreateUserExample(data)
 }
 
-// DeleteUserExampleRequest 删除一个id时，从url参数
-type DeleteUserExampleRequest struct {
-	ID uint64 `form:"id" binding:"gt=0"`
-}
-
 // DeleteUserExamplesRequest 删除多个id时，从body获取
 type DeleteUserExamplesRequest struct {
 	IDs []uint64 `form:"ids" binding:"min=1"`
@@ -70,8 +65,9 @@ func (s *Service) DeleteUserExample(ids ...uint64) error {
 
 // UpdateUserExampleRequest 请求参数
 type UpdateUserExampleRequest struct {
+	ID uint64 `form:"id" binding:"-"`
+
 	/* todo
-	ID     uint64 `form:"id" binding:"gt=0"`
 	Name   string `form:"name" binding:""`
 	Age    int    `form:"age" binding:""`
 	Gender string `form:"gender" binding:""`
@@ -81,8 +77,9 @@ type UpdateUserExampleRequest struct {
 // UpdateUserExample 更新
 func (s *Service) UpdateUserExample(req *UpdateUserExampleRequest) error {
 	return s.dao.UpdateUserExample(&dao.UserExample{
+		ID: req.ID,
+
 		/* todo
-		ID:     req.ID,
 		Name:   req.Name,
 		Age:    req.Age,
 		Gender: req.Gender,
@@ -107,10 +104,10 @@ type GetUserExamplesRequest struct {
 	Sort string `form:"sort" binding:"-"`
 
 	// 参数填写方式一：从request请求url中获取参数(form.URLParams = c.Request.URL.RawQuery)，
-	// 用来自动填充exp、logic的默认值，为了在url参数减少填写exp和logic的默认值，例如url参数?page=0&size=20&exp=gt&k=age&v=22&k=gender&v=1，表示查询年龄大于22岁的男性
+	// 用来自动填充exp、logic的默认值，为了在url参数减少填写exp和logic的默认值，例如url参数?page=0&size=20&k=age&exp=gt&v=22&k=gender&v=1，表示查询年龄大于22岁的男性
 	// 参数填写方式二：没有从请求url中获取参数，也就是ParamSrc为空时，请求url参数必须满足len(k)=len(v)=len(exp)=len(logic)，
 	// 可以同时存在多个，也可以同时不存在，例如url参数?page=0&size=20&k=age&v=22&exp=gt&logic=and&k=gender&v=1&exp=eq&logic=and，也是表示查询年龄大于22岁的男性
-	// 两种url参数都是合法，建议使用第一种
+	// 两种url参数都是合法，建议使用第一种方式
 	URLParams string   `form:"-" binding:"-"`
 	Keys      []string `form:"k" binding:"-"`
 	Values    []string `form:"v" binding:"-"`
