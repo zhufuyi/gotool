@@ -19,8 +19,8 @@ func genGinCommand() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "gen <resource>",
-		Short: "Generate gin api code",
-		Long: `generate gin api code.
+		Short: "Generate web service code",
+		Long: `generate web service code.
 
 Examples:
     # generate api code

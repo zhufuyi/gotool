@@ -11,7 +11,7 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
-  gen         Generate gin api code
+  gen         Generate web server code
   help        Help about any command
   resources   List of supported resources
 
