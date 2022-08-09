@@ -23,15 +23,15 @@ func genGinCommand() *cobra.Command {
 		Long: `generate web service code.
 
 Examples:
-    # generate api code
+    # generate web service code
     goctl gen web -p yourProjectName -a yourApiName
     goctl gen web -p yourProjectName -a yourApiName -o /tmp
 
-    # generate web server code
+    # generate api code
     goctl gen api -p yourProjectName -a yourApiName
     goctl gen api -p yourProjectName -a yourApiName -o /tmp
 
-    # generate user code
+    # generate user code, including registration, login and logout api
     goctl gen user -p yourProjectName
     goctl gen user  -p yourProjectName -o /tmp
 `,
@@ -120,7 +120,7 @@ func runGenApiCommand(handler template.Handler, projectName string, apiName stri
 		return err
 	}
 
-	fmt.Printf("api '%s' generate successfully, output = %s\n\n", apiName, handler.GetOutPath())
+	fmt.Printf("generate api '%s' code successfully, output = %s\n\n", apiName, handler.GetOutPath())
 	return nil
 }
 
@@ -152,7 +152,7 @@ func runGenWebCommand(handler template.Handler, projectName string, apiName stri
 		return err
 	}
 
-	fmt.Printf("web server '%s' generate successfully, output = %s\n\n", projectName, handler.GetOutPath())
+	fmt.Printf("generate web server '%s' code successfully, output = %s\n\n", projectName, handler.GetOutPath())
 	return nil
 }
 
@@ -176,6 +176,6 @@ func runGenUserCommand(handler template.Handler, projectName string, outPath str
 		return err
 	}
 
-	fmt.Printf("project '%s' generate successfully, output = %s\n\n", projectName, handler.GetOutPath())
+	fmt.Printf("generate project '%s' code successfully, output = %s\n\n", projectName, handler.GetOutPath())
 	return nil
 }
