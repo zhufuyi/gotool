@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"github.com/zhufuyi/pkg/gofile"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -23,8 +24,9 @@ type Handler interface {
 
 // TemplateInfo 模板信息
 type TemplateInfo struct {
-	path              string            // 模板目录路径(不包含.或..)
+	path              string            // 模板目录路径(不包含.或..)是否实际路径
 	fs                embed.FS          // 模板目录对应二进制对象
+	isActual          bool              // fs字段是否来源实际路径，如果为true，使用ioutil操作文件，如果为false使用fs操作文件
 	files             []string          // 模板文件列表
 	ignoreFiles       []string          // 忽略替换的文件列表
 	replacementFields map[string]string // 从模板文件转为新文件需要替换的字符，key是模板字符串，value是新文件字符串
@@ -41,6 +43,23 @@ func New(path string, fs embed.FS) (*TemplateInfo, error) {
 	return &TemplateInfo{
 		path:              path,
 		fs:                fs,
+		isActual:          false,
+		files:             files,
+		replacementFields: make(map[string]string),
+	}, nil
+}
+
+// NewSrc 实例化
+func NewSrc(path string) (*TemplateInfo, error) {
+	files, err := gofile.ListFiles(path)
+	if err != nil {
+		return nil, err
+	}
+
+	path, _ = filepath.Abs(path)
+	return &TemplateInfo{
+		path:              path,
+		isActual:          true,
 		files:             files,
 		replacementFields: make(map[string]string),
 	}, nil
@@ -94,7 +113,13 @@ func (t *TemplateInfo) SaveFiles() error {
 		}
 
 		// 从二进制读取模板文件内容使用embed.FS，如果要从指定目录读取使用ioutil.ReadFile
-		data, err := t.fs.ReadFile(file)
+		var data []byte
+		var err error
+		if t.isActual {
+			data, err = ioutil.ReadFile(file)
+		} else {
+			data, err = t.fs.ReadFile(file)
+		}
 		if err != nil {
 			return err
 		}
@@ -154,7 +179,13 @@ func (t *TemplateInfo) setReplacementField(oldField string, newField string, isN
 }
 
 func (t *TemplateInfo) getNewFilePath(file string) string {
-	newFilePath := t.outPath + strings.Replace(file, t.path, "", 1)
+	var newFilePath string
+	if t.isActual {
+		newFilePath = t.outPath + strings.Replace(file, t.path, "", 1)
+	} else {
+		newFilePath = t.outPath + strings.Replace(file, t.path, "", 1)
+	}
+
 	if runtime.GOOS == "windows" {
 		newFilePath = strings.ReplaceAll(newFilePath, "/", "\\")
 	}
