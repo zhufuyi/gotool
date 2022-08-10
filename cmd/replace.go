@@ -16,7 +16,7 @@ func replaceCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "replace <path or file> <old...> <new...>",
+		Use:   "replace <path> <old...> <new...>",
 		Short: "Replace fields in path files",
 		Long: `replace fields in path files.
 
