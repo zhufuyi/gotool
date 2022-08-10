@@ -2,7 +2,7 @@ package errcode
 
 import "github.com/zhufuyi/pkg/gin/errcode"
 
-// 公共错误码
+// 系统级别错误码，无Err前缀
 var (
 	Success             = errcode.Success
 	InvalidParams       = errcode.InvalidParams
@@ -17,5 +17,5 @@ var (
 )
 
 func genCode(NO int) int {
-	return 100000 + NO*100
+	return 20000 + NO*100
 }

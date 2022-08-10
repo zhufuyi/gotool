@@ -26,7 +26,7 @@ func CreateUserExample(c *gin.Context) {
 	err = svc.CreateUserExample(form)
 	if err != nil {
 		logger.Error("CreateUserExample error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.CreateUserExampleErr)
+		render.Error(c, errcode.ErrCreateUserExample)
 		return
 	}
 
@@ -44,7 +44,7 @@ func DeleteUserExample(c *gin.Context) {
 	err := svc.DeleteUserExample(id)
 	if err != nil {
 		logger.Error("DeleteUserExample error", logger.Err(err), logger.Uint64("id", id))
-		render.Error(c, errcode.DeleteUserExampleErr)
+		render.Error(c, errcode.ErrDeleteUserExample)
 		return
 	}
 
@@ -65,7 +65,7 @@ func DeleteUserExamples(c *gin.Context) {
 	err = svc.DeleteUserExample(form.IDs...)
 	if err != nil {
 		logger.Error("DeleteUserExample error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.DeleteUserExampleErr)
+		render.Error(c, errcode.ErrDeleteUserExample)
 		return
 	}
 
@@ -92,7 +92,7 @@ func UpdateUserExample(c *gin.Context) {
 	err = svc.UpdateUserExample(form)
 	if err != nil {
 		logger.Error("CreateUserExample error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.UpdateUserExampleErr)
+		render.Error(c, errcode.ErrUpdateUserExample)
 		return
 	}
 
@@ -114,7 +114,7 @@ func GetUserExample(c *gin.Context) {
 		if err.Error() == mysql.ErrNotFound.Error() {
 			render.Error(c, errcode.NotFound)
 		} else {
-			render.Error(c, errcode.GetUserExampleErr)
+			render.Error(c, errcode.ErrGetUserExample)
 		}
 		return
 	}
@@ -144,7 +144,7 @@ func GetUserExamples(c *gin.Context) {
 	userExamples, total, err := svc.GetUserExamples(form)
 	if err != nil {
 		logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.GetUserExampleErr)
+		render.Error(c, errcode.ErrGetUserExample)
 		return
 	}
 
@@ -168,7 +168,7 @@ func GetUserExamples2(c *gin.Context) {
 	userExamples, total, err := svc.GetUserExamples2(form)
 	if err != nil {
 		logger.Error("GetUserExampleByID error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.GetUserExampleErr)
+		render.Error(c, errcode.ErrGetUserExample)
 		return
 	}
 

@@ -26,7 +26,7 @@ func Register(c *gin.Context) {
 	resp, err := svc.CreateUser(form)
 	if err != nil {
 		logger.Error("CreateUser error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.RegisterErr)
+		render.Error(c, errcode.ErrRegister)
 		return
 	}
 
@@ -34,7 +34,7 @@ func Register(c *gin.Context) {
 	err = service.SendEmail(form.Email, resp.ID)
 	if err != nil {
 		logger.Error("SendEmail error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.SendEmailErr)
+		render.Error(c, errcode.ErrSendEmail)
 		return
 	}
 
@@ -57,10 +57,10 @@ func ActivateUser(c *gin.Context) {
 	if err != nil {
 		logger.Error("ActivateUser error", logger.Err(err), logger.String("params", c.Request.URL.RawQuery))
 		if isActivated > 0 {
-			render.Error(c, errcode.AlreadyActivateUserErr)
+			render.Error(c, errcode.ErrAlreadyActivateUser)
 			return
 		}
-		render.Error(c, errcode.ActivateUserErr)
+		render.Error(c, errcode.ErrActivateUser)
 		return
 	}
 
@@ -84,9 +84,9 @@ func Login(c *gin.Context) {
 		ec := errcode.InternalServerError
 		switch errType {
 		case service.ErrTypeUserOrPassword: // 用户或密码错误
-			ec = errcode.LoginErr
+			ec = errcode.ErrLogin
 		case service.ErrTypeUserNotActivated: // 用户存在，但未激活
-			ec = errcode.NotActivateUserErr
+			ec = errcode.ErrNotActivateUser
 		}
 		render.Error(c, ec)
 		return
@@ -110,7 +110,7 @@ func Logout(c *gin.Context) {
 	err := svc.Logout(id)
 	if err != nil {
 		logger.Error("Logout error", logger.Err(err), logger.Uint64("id", id))
-		render.Error(c, errcode.LogoutErr)
+		render.Error(c, errcode.ErrLogout)
 		return
 	}
 
@@ -131,7 +131,7 @@ func CreateUser(c *gin.Context) {
 	resp, err := svc.CreateUser(form)
 	if err != nil {
 		logger.Error("CreateUser error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.CreateUserErr)
+		render.Error(c, errcode.ErrCreateUser)
 		return
 	}
 
@@ -154,7 +154,7 @@ func DeleteUser(c *gin.Context) {
 	err := svc.DeleteUser(form.ID)
 	if err != nil {
 		logger.Error("DeleteUser error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.DeleteUserErr)
+		render.Error(c, errcode.ErrDeleteUser)
 		return
 	}
 
@@ -175,7 +175,7 @@ func DeleteUsers(c *gin.Context) {
 	err = svc.DeleteUser(form.IDs...)
 	if err != nil {
 		logger.Error("DeleteUser error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.DeleteUserErr)
+		render.Error(c, errcode.ErrDeleteUser)
 		return
 	}
 
@@ -206,7 +206,7 @@ func UpdateUser(c *gin.Context) {
 	err = svc.UpdateUser(form)
 	if err != nil {
 		logger.Error("CreateUser error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.UpdateUserErr)
+		render.Error(c, errcode.ErrUpdateUser)
 		return
 	}
 
@@ -228,12 +228,12 @@ func GetUser(c *gin.Context) {
 		if err.Error() == mysql.ErrNotFound.Error() {
 			render.Error(c, errcode.NotFound)
 		} else {
-			render.Error(c, errcode.GetUserErr)
+			render.Error(c, errcode.ErrGetUser)
 		}
 		return
 	}
 	if user.LoginState == service.LoginStateNo {
-		render.Error(c, errcode.LoginStateNoErr)
+		render.Error(c, errcode.ErrLoginStateNo)
 		return
 	}
 
@@ -266,7 +266,7 @@ func GetUsers(c *gin.Context) {
 	users, total, err := svc.GetUsers(form)
 	if err != nil {
 		logger.Error("GetUserByID error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.GetUserErr)
+		render.Error(c, errcode.ErrGetUser)
 		return
 	}
 
@@ -294,7 +294,7 @@ func GetUsers2(c *gin.Context) {
 	users, total, err := svc.GetUsers2(form)
 	if err != nil {
 		logger.Error("GetUserByID error", logger.Err(err), logger.Any("form", form))
-		render.Error(c, errcode.GetUserErr)
+		render.Error(c, errcode.ErrGetUser)
 		return
 	}
 
@@ -320,11 +320,11 @@ func checkIsLogin(c *gin.Context, svc *service.Service, id uint64) bool {
 	isLogined, err := svc.IsLogined(id)
 	if err != nil {
 		logger.Error("IsLogined error", logger.Err(err), logger.Any("id", id))
-		render.Error(c, errcode.LoginStateNoErr)
+		render.Error(c, errcode.ErrLoginStateNo)
 		return true
 	}
 	if !isLogined {
-		render.Error(c, errcode.LoginStateNoErr)
+		render.Error(c, errcode.ErrLoginStateNo)
 		return true
 	}
 
