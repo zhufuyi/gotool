@@ -3,10 +3,17 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/zhufuyi/goctl/global"
 	"github.com/zhufuyi/goctl/util/template"
+)
+
+const (
+	genTypeApi  = "api"
+	genTypeWeb  = "web"
+	genTypeUser = "user"
 )
 
 func genGinCommand() *cobra.Command {
@@ -18,11 +25,14 @@ func genGinCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "gen <resource>",
+		Use:   "gen <type>",
 		Short: "Generate web service code",
 		Long: `generate web service code.
 
 Examples:
+    # list generate types
+    goctl gen list
+
     # generate web service code
     goctl gen web -p yourProjectName -a yourApiName
     goctl gen web -p yourProjectName -a yourApiName -o /tmp
@@ -47,19 +57,22 @@ Examples:
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			switch resourceArg {
-			case apiResource:
+			case "list":
+				fmt.Println(string(ListTypeNames(genTypeWeb, genTypeApi, genTypeUser)))
+
+			case genTypeApi:
 				err := runGenApiCommand(global.ApiTemplater, projectName, apiName, outPath)
 				if err != nil {
 					return err
 				}
 
-			case webResource:
+			case genTypeWeb:
 				err := runGenWebCommand(global.WebTemplater, projectName, apiName, outPath)
 				if err != nil {
 					return err
 				}
 
-			case userResource:
+			case genTypeUser:
 				err := runGenUserCommand(global.UserTemplater, projectName, outPath)
 				if err != nil {
 					return err
@@ -74,7 +87,7 @@ Examples:
 	}
 
 	cmd.Flags().StringVarP(&projectName, "projectName", "p", "", "project name")
-	cmd.MarkFlagRequired("projectName")
+	//cmd.MarkFlagRequired("projectName")
 	cmd.Flags().StringVarP(&apiName, "apiName", "a", "", "api name")
 	//cmd.MarkFlagRequired("apiName")
 	cmd.Flags().StringVarP(&outPath, "out", "o", "", "export the code path")
@@ -113,7 +126,7 @@ func runGenApiCommand(handler template.Handler, projectName string, apiName stri
 
 	handler.SetIgnoreFiles(templateIgnoreFiles...)
 	handler.SetReplacementFields(fields)
-	if err := handler.SetOutPath(outPath, apiName+"_"+apiResource); err != nil {
+	if err := handler.SetOutPath(outPath, apiName+"_"+genTypeApi); err != nil {
 		return err
 	}
 	if err := handler.SaveFiles(); err != nil {
@@ -145,7 +158,7 @@ func runGenWebCommand(handler template.Handler, projectName string, apiName stri
 
 	handler.SetIgnoreFiles(templateIgnoreFiles...)
 	handler.SetReplacementFields(fields)
-	if err := handler.SetOutPath(outPath, projectName+"_"+webResource); err != nil {
+	if err := handler.SetOutPath(outPath, projectName+"_"+genTypeWeb); err != nil {
 		return err
 	}
 	if err := handler.SaveFiles(); err != nil {
@@ -178,4 +191,16 @@ func runGenUserCommand(handler template.Handler, projectName string, outPath str
 
 	fmt.Printf("generate project '%s' code successfully, output = %s\n\n", projectName, handler.GetOutPath())
 	return nil
+}
+
+// ------------------------------------------------------------------------------------------
+
+// ListTypeNames 类型名称列表
+func ListTypeNames(names ...string) []byte {
+	content := []string{fmt.Sprintf("%d types are supported:\n", len(names))}
+	for _, name := range names {
+		content = append(content, "    "+name+"\n")
+	}
+
+	return []byte(strings.Join(content, ""))
 }

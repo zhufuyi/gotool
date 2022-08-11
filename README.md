@@ -66,3 +66,21 @@ goctl replace -p /tmp -o oldField -n newField
 # replace multiple fields
 goctl replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
 ```
+
+<br>
+
+### Covert command
+
+(1) sql to gorm
+
+```bash
+# covert sql to gorm from file
+goctl covert sql --file=test.sql
+
+# covert sql to gorm from db
+goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
+
+# covert sql to gorm, set package name and json tag
+goctl covert sql --file=test.sql --pkg-name=user --json-tag
+goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
+```
