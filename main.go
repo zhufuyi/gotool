@@ -6,18 +6,21 @@ import (
 
 	"github.com/zhufuyi/goctl/cmd"
 	"github.com/zhufuyi/goctl/global"
-	"github.com/zhufuyi/goctl/util/template"
+	"github.com/zhufuyi/goctl/utils/template"
 )
 
 // api模板目录
+//
 //go:embed templates/api
 var apiFS embed.FS
 
 // web模板目录
+//
 //go:embed templates/web
 var webFS embed.FS
 
 // user模板目录
+//
 //go:embed templates/user
 var userFS embed.FS
 

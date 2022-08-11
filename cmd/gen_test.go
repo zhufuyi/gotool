@@ -4,18 +4,21 @@ import (
 	"embed"
 	"testing"
 
-	"github.com/zhufuyi/goctl/util/template"
+	"github.com/zhufuyi/goctl/utils/template"
 )
 
 // api模板目录
+//
 //go:embed gen.go
 var apiFS embed.FS
 
 // web模板目录
+//
 //go:embed gen.go
 var webFS embed.FS
 
 // user模板目录
+//
 //go:embed gen.go
 var userFS embed.FS
 

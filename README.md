@@ -6,10 +6,11 @@ go language development tools.
 
 > go install github.com/zhufuyi/goctl@latest
 
+<br>
+
 the installation path is in `$GOPATH/bin`, see the command help.
 
 ```
-$ goctl -h
 go language development tools
 
 Usage:
@@ -17,10 +18,10 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
+  covert      Covert sql to gorm
   gen         Generate web service code
   help        Help about any command
   replace     Replace fields in path files
-  resources   List of supported resources
 
 Flags:
   -h, --help      help for goctl

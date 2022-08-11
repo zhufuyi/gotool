@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/util/template"
+	"github.com/zhufuyi/goctl/utils/template"
 )
 
 func replaceCommand() *cobra.Command {

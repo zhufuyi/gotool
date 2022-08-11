@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/util/sql2gorm"
+	"github.com/zhufuyi/goctl/utils/sql2gorm"
 )
 
 const (

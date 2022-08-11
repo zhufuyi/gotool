@@ -4,7 +4,7 @@ import (
 	"github.com/zhufuyi/goctl/templates/user/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
-	"github.com/zhufuyi/goctl/util/middleware"
+	"github.com/zhufuyi/goctl/utils/middleware"
 )
 
 func init() {

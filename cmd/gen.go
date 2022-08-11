@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/zhufuyi/goctl/global"
-	"github.com/zhufuyi/goctl/util/template"
+	"github.com/zhufuyi/goctl/utils/template"
 )
 
 const (

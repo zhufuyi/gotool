@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/zhufuyi/goctl/util/sql2gorm/parser"
+	"github.com/zhufuyi/goctl/utils/sql2gorm/parser"
 	"io/ioutil"
 )
 

@@ -1,6 +1,6 @@
 package global
 
-import "github.com/zhufuyi/goctl/util/template"
+import "github.com/zhufuyi/goctl/utils/template"
 
 var (
 	// ApiTemplater api模板接口
