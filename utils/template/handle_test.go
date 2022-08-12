@@ -17,9 +17,9 @@ func TestTemplate(t *testing.T) {
 	templateIgnoreFiles := []string{}
 	fields := []Field{
 		{
-			Old:          "old_field1",
-			New:          "new_field1",
-			IsNeedCovert: true,
+			Old:             "old_field1",
+			New:             "new_field1",
+			IsCaseSensitive: true,
 		},
 	}
 	templater.SetIgnoreFiles(templateIgnoreFiles...)

@@ -68,15 +68,15 @@ func NewSrc(path string) (*TemplateInfo, error) {
 
 // Field 替换字段信息
 type Field struct {
-	Old          string // 模板字段
-	New          string // 新字段
-	IsNeedCovert bool   // 是否匹配第一个字母大小写
+	Old             string // 模板字段
+	New             string // 新字段
+	IsCaseSensitive bool   // 第一个字母是否区分大小写
 }
 
 // SetReplacementFields 设置替换字段
 func (t *TemplateInfo) SetReplacementFields(fields []Field) {
 	for _, v := range fields {
-		t.setReplacementField(v.Old, v.New, v.IsNeedCovert)
+		t.setReplacementField(v.Old, v.New, v.IsCaseSensitive)
 	}
 }
 
