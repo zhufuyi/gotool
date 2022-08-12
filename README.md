@@ -18,7 +18,7 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
-  covert      Covert sql to gorm
+  covert      resource type conversion
   gen         Generate web service code
   help        Help about any command
   replace     Replace fields in path files
@@ -36,13 +36,13 @@ Use "goctl [command] --help" for more information about a command.
 
 ### Generate command
 
-(1) generate web service code
+#### generate web service code
 
 > goctl gen web -p yourProjectName -a yourApiName
 
 <br>
 
-(2) generate api code
+#### generate api code
 
 > goctl gen api -p yourProjectName -a yourApiName
 
@@ -50,7 +50,7 @@ copy the generated code folder to your project folder and fill in the business l
 
 <br>
 
-(3) generate user code
+#### generate user code
 
 > goctl gen user -p yourProjectName
 
@@ -72,7 +72,7 @@ goctl replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
 
 ### Covert command
 
-(1) sql to gorm
+#### sql to gorm
 
 ```bash
 # covert sql to gorm from file
@@ -84,4 +84,34 @@ goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 # covert sql to gorm, set package name and json tag
 goctl covert sql --file=test.sql --pkg-name=user --json-tag
 goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
+```
+
+<br>
+
+#### json to struct
+
+```bash
+    # covert json to struct from data
+    goctl covert json --data="json text"
+
+    # covert json to struct from file
+    goctl covert json --file=test.json
+
+    # covert json to struct, set tag value and subStruct flag
+    goctl covert json --file=test.sql --tags=gorm --sub-struct=false
+```
+
+<br>
+
+#### yaml to struct
+
+```bash
+    # covert yaml to struct from data
+    goctl covert yaml --data="yaml text"
+
+    # covert yaml to struct from file
+    goctl covert yaml --file=test.json
+
+    # covert yaml to struct, set tag value and subStruct flag
+    goctl covert yaml --file=test.sql --tags=gorm --sub-struct=false
 ```

@@ -21,8 +21,11 @@ func replaceCommand() *cobra.Command {
 		Long: `replace fields in path files.
 
 Examples:
-    goctl replace -p /tmp -o oldField -n newField
-    goctl replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
+  # replace one field
+  goctl replace -p /tmp -o oldField -n newField
+
+  # replace multiple fields
+  goctl replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
 
 `,
 		SilenceErrors: true,
@@ -62,9 +65,9 @@ func runReplaceCommand(srcPath string, oldValues []string, newValues []string) e
 	fields := []template.Field{}
 	for i, old := range oldValues {
 		fields = append(fields, template.Field{
-			Old:          old,
-			New:          newValues[i],
-			IsNeedCovert: false,
+			Old:             old,
+			New:             newValues[i],
+			IsCaseSensitive: false,
 		})
 	}
 
