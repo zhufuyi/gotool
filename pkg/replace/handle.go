@@ -1,10 +1,9 @@
-package template
+package replace
 
 import (
 	"bytes"
 	"embed"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -21,13 +20,14 @@ type Handler interface {
 	SetOutPath(absPath string, name string) error
 	GetOutPath() string
 	SaveFiles() error
+	ReadFile(filename string) ([]byte, error)
 }
 
 // TemplateInfo 模板信息
 type TemplateInfo struct {
 	path              string            // 模板目录路径(不包含.或..)是否实际路径
 	fs                embed.FS          // 模板目录对应二进制对象
-	isActual          bool              // fs字段是否来源实际路径，如果为true，使用ioutil操作文件，如果为false使用fs操作文件
+	isActual          bool              // fs字段是否来源实际路径，如果为true，使用io操作文件，如果为false使用fs操作文件
 	files             []string          // 模板文件列表
 	ignoreFiles       []string          // 忽略替换的文件列表
 	replacementFields map[string]string // 从模板文件转为新文件需要替换的字符，key是模板字符串，value是新文件字符串
@@ -102,6 +102,26 @@ func (t *TemplateInfo) GetOutPath() string {
 	return t.outPath
 }
 
+// ReadFile 读取文件内容
+func (t *TemplateInfo) ReadFile(filename string) ([]byte, error) {
+	count := 0
+	foundFile := ""
+	for _, file := range t.files {
+		if strings.Contains(file, filename) {
+			count++
+			foundFile = file
+		}
+	}
+	if count == 0 || count > 1 {
+		return nil, fmt.Errorf("total %d file named '%s'", count, filename)
+	}
+
+	if t.isActual {
+		return os.ReadFile(foundFile)
+	}
+	return t.fs.ReadFile(foundFile)
+}
+
 // SaveFiles 导出文件
 func (t *TemplateInfo) SaveFiles() error {
 	if t.outPath == "" {
@@ -113,11 +133,11 @@ func (t *TemplateInfo) SaveFiles() error {
 			continue
 		}
 
-		// 从二进制读取模板文件内容使用embed.FS，如果要从指定目录读取使用ioutil.ReadFile
+		// 从二进制读取模板文件内容使用embed.FS，如果要从指定目录读取使用os.ReadFile
 		var data []byte
 		var err error
 		if t.isActual {
-			data, err = ioutil.ReadFile(file)
+			data, err = os.ReadFile(file)
 		} else {
 			data, err = t.fs.ReadFile(file)
 		}
@@ -203,7 +223,7 @@ func saveToNewFile(filePath string, data []byte) error {
 	}
 
 	// 保存文件
-	err = ioutil.WriteFile(filePath, data, 0666)
+	err = os.WriteFile(filePath, data, 0666)
 	if err != nil {
 		return err
 	}

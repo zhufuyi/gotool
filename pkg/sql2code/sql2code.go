@@ -1,11 +1,11 @@
-package sql2gorm
+package sql2code
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"github.com/zhufuyi/goctl/utils/sql2gorm/parser"
 	"io/ioutil"
+
+	"github.com/zhufuyi/goctl/pkg/sql2code/parser"
 )
 
 // Args 参数
@@ -21,6 +21,8 @@ type Args struct {
 	JsonTag        bool   // 是否包括json tag
 	JsonNamedType  int    // json命名类型，0:默认，其他值表示驼峰
 	GormType       bool   // gorm type
+	IsEmbed        bool   // 是否嵌入gorm.Model
+	CodeType       string // 指定生成代码用途，支持4中类型，分别是 model, json, dao, handler
 	ForceTableName bool
 	Charset        string
 	Collation      string
@@ -78,6 +80,9 @@ func getOptions(args *Args) []parser.Option {
 	if args.NoNullType {
 		opts = append(opts, parser.WithNoNullType())
 	}
+	if args.IsEmbed {
+		opts = append(opts, parser.WithEmbed())
+	}
 
 	if args.NullStyle != "" {
 		switch args.NullStyle {
@@ -107,20 +112,30 @@ func getOptions(args *Args) []parser.Option {
 
 // GetGormCode 根据sql生成gorm代码，sql可以从参数、文件、db三种方式获取，优先从高到低
 func GetGormCode(args *Args) (string, error) {
-	sql, err := getSql(args)
+	codes, err := GetCodes(args)
 	if err != nil {
 		return "", err
+	}
+
+	if args.CodeType == "" {
+		args.CodeType = parser.CodeTypeModel // 默认为model code
+	}
+	out, ok := codes[args.CodeType]
+	if !ok {
+		return "", fmt.Errorf("unkown code type %s", args.CodeType)
+	}
+
+	return out, nil
+}
+
+// GetCodes 生成model, json, dao, handler不同用途代码
+func GetCodes(args *Args) (map[string]string, error) {
+	sql, err := getSql(args)
+	if err != nil {
+		return nil, err
 	}
 
 	opt := getOptions(args)
 
-	out := []byte{}
-	buf := bytes.NewBuffer(out)
-
-	err = parser.ParseSqlToWrite(sql, buf, opt...)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
+	return parser.ParseSql(sql, opt...)
 }

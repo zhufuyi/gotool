@@ -1,4 +1,4 @@
-package sql2gorm
+package sql2code
 
 import "testing"
 

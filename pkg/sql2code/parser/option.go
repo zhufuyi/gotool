@@ -22,6 +22,7 @@ type options struct {
 	Package        string
 	GormType       bool
 	ForceTableName bool
+	IsEmbed        bool // 是否嵌入gorm.Model
 }
 
 var defaultOptions = options{
@@ -89,6 +90,13 @@ func WithGormType() Option {
 func WithForceTableName() Option {
 	return func(o *options) {
 		o.ForceTableName = true
+	}
+}
+
+// WithEmbed is embed gorm.Model
+func WithEmbed() Option {
+	return func(o *options) {
+		o.IsEmbed = true
 	}
 }
 
