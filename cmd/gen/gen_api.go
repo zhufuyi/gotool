@@ -1,11 +1,13 @@
 package gen
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/replace"
+	"github.com/zhufuyi/goctl/templates"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/global"
-	"github.com/zhufuyi/goctl/utils/template"
 )
 
 // ApiCommand generate api code
@@ -31,7 +33,7 @@ Examples:
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
-			err := runGenApiCommand(global.ApiTemplater, projectName, apiName, outPath)
+			err := runGenApiCommand(templates.Handers[GenTypeApi], projectName, apiName, outPath)
 			if err != nil {
 				return err
 			}
@@ -49,10 +51,10 @@ Examples:
 	return cmd
 }
 
-func runGenApiCommand(handler template.Handler, projectName string, apiName string, outPath string) error {
+func runGenApiCommand(handler replace.Handler, projectName string, apiName string, outPath string) error {
 	// 设置模板信息
 	templateIgnoreFiles := []string{"dao.go", "common_code.go", "service.go", "routers.go", "global.go", "conf.go"} // 忽略处理的文件
-	fields := []template.Field{
+	fields := []replace.Field{
 		{
 			Old:             "UserExample",
 			New:             apiName,
@@ -64,9 +66,12 @@ func runGenApiCommand(handler template.Handler, projectName string, apiName stri
 		},
 	}
 
+	if handler == nil {
+		return errors.New("handler is nil")
+	}
 	handler.SetIgnoreFiles(templateIgnoreFiles...)
 	handler.SetReplacementFields(fields)
-	if err := handler.SetOutPath(outPath, apiName+"_"+genTypeApi); err != nil {
+	if err := handler.SetOutPath(outPath, apiName+"_"+GenTypeApi); err != nil {
 		return err
 	}
 	if err := handler.SaveFiles(); err != nil {

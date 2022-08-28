@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// TableName table name
+	TableName = "__table_name__"
 	// CodeTypeModel model code
 	CodeTypeModel = "model"
 	// CodeTypeJSON json code
@@ -57,6 +59,7 @@ func ParseSql(sql string, options ...Option) (map[string]string, error) {
 	handlerStructCodes := make([]string, 0, len(stmts))
 	modelJSONCodes := make([]string, 0, len(stmts))
 	importPath := make(map[string]struct{})
+	tableNames := make([]string, 0, len(stmts))
 	for _, stmt := range stmts {
 		if ct, ok := stmt.(*ast.CreateTableStmt); ok {
 			code, err := makeCode(ct, opt)
@@ -67,6 +70,7 @@ func ParseSql(sql string, options ...Option) (map[string]string, error) {
 			updateFieldsCodes = append(updateFieldsCodes, code.updateFields)
 			handlerStructCodes = append(handlerStructCodes, code.handlerStruct)
 			modelJSONCodes = append(modelJSONCodes, code.modelJSON)
+			tableNames = append(tableNames, toCamel(ct.Table.Name.String()))
 			for _, s := range code.importPaths {
 				importPath[s] = struct{}{}
 			}
@@ -94,6 +98,7 @@ func ParseSql(sql string, options ...Option) (map[string]string, error) {
 		CodeTypeJSON:    strings.Join(modelJSONCodes, "\n\n"),
 		CodeTypeDAO:     strings.Join(updateFieldsCodes, "\n\n"),
 		CodeTypeHandler: strings.Join(handlerStructCodes, "\n\n"),
+		TableName:       strings.Join(tableNames, ", "),
 	}
 
 	return codesMap, nil

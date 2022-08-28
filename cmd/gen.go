@@ -5,7 +5,7 @@ import (
 	"github.com/zhufuyi/goctl/cmd/gen"
 )
 
-func genGinCommand() *cobra.Command {
+func genWebCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gen <type>",
 		Short: "Generate code",
@@ -22,6 +22,8 @@ Examples:
 
 	cmd.AddCommand(
 		gen.ListTypesCommand(),
+		gen.ModelCommand(),
+		gen.DaoCommand(),
 		gen.ApiCommand(),
 		gen.WebCommand(),
 		gen.UserCommand(),

@@ -1,11 +1,13 @@
 package gen
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/replace"
+	"github.com/zhufuyi/goctl/templates"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/global"
-	"github.com/zhufuyi/goctl/utils/template"
 )
 
 // WebCommand generate web code
@@ -30,7 +32,7 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := runGenWebCommand(global.WebTemplater, projectName, apiName, outPath)
+			err := runGenWebCommand(templates.Handers[GenTypeWeb], projectName, apiName, outPath)
 			if err != nil {
 				return err
 			}
@@ -48,10 +50,10 @@ Examples:
 	return cmd
 }
 
-func runGenWebCommand(handler template.Handler, projectName string, apiName string, outPath string) error {
+func runGenWebCommand(handler replace.Handler, projectName string, apiName string, outPath string) error {
 	// 设置模板信息
 	templateIgnoreFiles := []string{} // 忽略处理的文件
-	fields := []template.Field{       // 替换字段
+	fields := []replace.Field{        // 替换字段
 		{
 			Old:             "UserExample",
 			New:             apiName,
@@ -63,9 +65,12 @@ func runGenWebCommand(handler template.Handler, projectName string, apiName stri
 		},
 	}
 
+	if handler == nil {
+		return errors.New("handler is nil")
+	}
 	handler.SetIgnoreFiles(templateIgnoreFiles...)
 	handler.SetReplacementFields(fields)
-	if err := handler.SetOutPath(outPath, projectName+"_"+genTypeWeb); err != nil {
+	if err := handler.SetOutPath(outPath, projectName+"_"+GenTypeWeb); err != nil {
 		return err
 	}
 	if err := handler.SaveFiles(); err != nil {

@@ -5,7 +5,7 @@ import (
 )
 
 // Version 命令版本号
-const Version = "0.0.1"
+const Version = "0.0.0"
 
 // NewRootCMD 命令入口
 func NewRootCMD() *cobra.Command {
@@ -18,7 +18,7 @@ func NewRootCMD() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		genGinCommand(),
+		genWebCommand(),
 		replaceCommand(),
 		convertCommand(),
 	)

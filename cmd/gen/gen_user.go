@@ -1,11 +1,13 @@
 package gen
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/replace"
+	"github.com/zhufuyi/goctl/templates"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/global"
-	"github.com/zhufuyi/goctl/utils/template"
 )
 
 // UserCommand generate user code
@@ -29,7 +31,7 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := runGenUserCommand(global.WebTemplater, projectName, outPath)
+			err := runGenUserCommand(templates.Handers[GenTypeUser], projectName, outPath)
 			if err != nil {
 				return err
 			}
@@ -45,10 +47,10 @@ Examples:
 	return cmd
 }
 
-func runGenUserCommand(handler template.Handler, projectName string, outPath string) error {
+func runGenUserCommand(handler replace.Handler, projectName string, outPath string) error {
 	// 设置模板信息
-	templateIgnoreFiles := []string{}      // 忽略处理的文件
-	replacementFields := []template.Field{ // 替换字段
+	templateIgnoreFiles := []string{}     // 忽略处理的文件
+	replacementFields := []replace.Field{ // 替换字段
 		{
 			Old:             "github.com/zhufuyi/goctl/templates/user",
 			New:             projectName,
@@ -56,6 +58,9 @@ func runGenUserCommand(handler template.Handler, projectName string, outPath str
 		},
 	}
 
+	if handler == nil {
+		return errors.New("handler is nil")
+	}
 	handler.SetIgnoreFiles(templateIgnoreFiles...)
 	handler.SetReplacementFields(replacementFields)
 	if err := handler.SetOutPath(outPath, projectName); err != nil {

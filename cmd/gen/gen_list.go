@@ -3,14 +3,22 @@ package gen
 import (
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/utils"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils"
 )
 
 const (
-	genTypeApi  = "api"
-	genTypeWeb  = "web"
-	genTypeUser = "user"
+	// GenTypeDao dao 类型
+	GenTypeDao = "dao"
+	// GenTypeDao dao 类型
+	GenTypeModel = "model"
+	// GenTypeApi api 类型
+	GenTypeApi = "api"
+	// GenTypeWeb web 类型
+	GenTypeWeb = "web"
+	// GenTypeUser user 类型
+	GenTypeUser = "user"
 )
 
 // ListTypesCommand show generate support types
@@ -29,9 +37,10 @@ Examples:
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println(utils.ListTypeNames(
-				genTypeApi,
-				genTypeWeb,
-				genTypeUser,
+				GenTypeDao,
+				GenTypeApi,
+				GenTypeWeb,
+				GenTypeUser,
 			))
 			return nil
 		},
