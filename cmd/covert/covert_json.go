@@ -3,8 +3,9 @@ package covert
 import (
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/toStruct"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils/toStruct"
 )
 
 // JSON2StructCommand covert json to struct command

@@ -388,13 +388,13 @@ func getModelStructCode(data tmplData, importPaths []string, isEmbed bool) (stri
 	}
 
 	builder := strings.Builder{}
-	err := structTmpl.Execute(&builder, data)
+	err := modelStructTmpl.Execute(&builder, data)
 	if err != nil {
-		return "", nil, fmt.Errorf("structTmpl.Execute error: %v", err)
+		return "", nil, fmt.Errorf("modelStructTmpl.Execute error: %v", err)
 	}
 	code, err := format.Source([]byte(builder.String()))
 	if err != nil {
-		return "", nil, fmt.Errorf("structTmpl format.Source error: %v", err)
+		return "", nil, fmt.Errorf("modelStructTmpl format.Source error: %v", err)
 	}
 	structCode := string(code)
 	// 还原真实的嵌入字段
@@ -408,7 +408,7 @@ func getModelStructCode(data tmplData, importPaths []string, isEmbed bool) (stri
 
 func getModelCode(data modelCodes) (string, error) {
 	builder := strings.Builder{}
-	err := fileTmpl.Execute(&builder, data)
+	err := modelTmpl.Execute(&builder, data)
 	if err != nil {
 		return "", err
 	}
@@ -451,19 +451,19 @@ func getUpdateFieldsCode(data tmplData, isEmbed bool) (string, error) {
 }
 
 func getHandlerStructCodes(data tmplData) (string, error) {
-	postStructCode, err := getHandlerStructCode(data, handlerPostStructTmpl)
+	postStructCode, err := getHandlerStructCode(data, handlerCreateStructTmpl)
 	if err != nil {
-		return "", fmt.Errorf("handlerPostStructTmpl error: %v", err)
+		return "", fmt.Errorf("handlerCreateStructTmpl error: %v", err)
 	}
 
-	putStructCode, err := getHandlerStructCode(data, handlerPutStructTmpl, columnID)
+	putStructCode, err := getHandlerStructCode(data, handlerUpdateStructTmpl, columnID)
 	if err != nil {
-		return "", fmt.Errorf("handlerPutStructTmpl error: %v", err)
+		return "", fmt.Errorf("handlerUpdateStructTmpl error: %v", err)
 	}
 
-	getStructCode, err := getHandlerStructCode(data, handlerGetStructTmpl, columnID, columnCreatedAt, columnUpdatedAt)
+	getStructCode, err := getHandlerStructCode(data, handlerDetailStructTmpl, columnID, columnCreatedAt, columnUpdatedAt)
 	if err != nil {
-		return "", fmt.Errorf("handlerGetStructTmpl error: %v", err)
+		return "", fmt.Errorf("handlerDetailStructTmpl error: %v", err)
 	}
 
 	return postStructCode + putStructCode + getStructCode, nil

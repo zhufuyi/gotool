@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/replace"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils/template"
 )
 
 func replaceCommand() *cobra.Command {
@@ -40,12 +41,12 @@ Examples:
 	}
 
 	cmd.Flags().StringVarP(&srcPath, "path", "p", "", "source path or file")
-	cmd.MarkFlagRequired("path")
+	_ = cmd.MarkFlagRequired("path")
 
 	cmd.Flags().StringArrayVarP(&oldValue, "old", "o", nil, "old value, one by one corresponding to the 'new' fields")
-	cmd.MarkFlagRequired("old")
+	_ = cmd.MarkFlagRequired("old")
 	cmd.Flags().StringArrayVarP(&newValue, "new", "n", nil, "new value, one by one corresponding to the 'old' fields")
-	cmd.MarkFlagRequired("new")
+	_ = cmd.MarkFlagRequired("new")
 
 	return cmd
 }
@@ -55,16 +56,16 @@ func runReplaceCommand(srcPath string, oldValues []string, newValues []string) e
 		return errors.New("len(old) must be equal to len(new)")
 	}
 
-	handler, err := template.NewSrc(srcPath)
+	handler, err := replace.NewSrc(srcPath)
 	if err != nil {
 		return err
 	}
 
 	// 设置模板信息
 	templateIgnoreFiles := []string{} // 忽略处理的文件
-	fields := []template.Field{}
+	fields := []replace.Field{}
 	for i, old := range oldValues {
-		fields = append(fields, template.Field{
+		fields = append(fields, replace.Field{
 			Old:             old,
 			New:             newValues[i],
 			IsCaseSensitive: false,

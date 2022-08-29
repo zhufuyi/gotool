@@ -55,5 +55,5 @@ log:
 # mysql配置，url格式 <user>:<pass>@(127.0.0.1:3306)/<db>?charset=utf8mb4&parseTime=true
 mysqlUrl: "root:123456@(192.168.3.37:3306)/account?charset=utf8mb4&parseTime=true"
 
-# redis配置, redis6版本以上，默认用户为default，url格式 [user>:<pass>@]127.0.0.1:6379/[db]
+# redis配置, redis6版本以上，默认用户为default，url格式 [user]:<pass>@]127.0.0.1:6379/[db]
 redisUrl: "default:123456@192.168.3.37:6379"

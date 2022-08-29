@@ -49,8 +49,8 @@ func GetDB() *gorm.DB {
 	return db
 }
 
-// CloseDB 关闭连接
-func CloseDB() error {
+// CloseMysql 关闭mysql
+func CloseMysql() error {
 	if db != nil {
 		sqlDB, err := db.DB()
 		if err != nil {
@@ -78,8 +78,8 @@ func InitRedis() {
 	}
 }
 
-// GetRedis 返回redis client
-func GetRedis() *redis.Client {
+// GetRedisCli 返回redis client
+func GetRedisCli() *redis.Client {
 	if redisCli == nil {
 		once2.Do(func() {
 			InitRedis()
@@ -87,4 +87,14 @@ func GetRedis() *redis.Client {
 	}
 
 	return redisCli
+}
+
+// CloseRedis 关闭redis
+func CloseRedis() error {
+	err := redisCli.Close()
+	if err != nil && err.Error() != redis.ErrClosed.Error() {
+		return err
+	}
+
+	return nil
 }

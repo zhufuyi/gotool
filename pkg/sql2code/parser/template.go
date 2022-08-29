@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	structTmpl    *template.Template
-	structTmplRaw = `
+	modelStructTmpl    *template.Template
+	modelStructTmplRaw = `
 {{- if .Comment -}}
 // {{.TableName}} {{.Comment}}
 {{end -}}
@@ -24,8 +24,8 @@ func (m *{{.TableName}}) TableName() string {
 {{end}}
 `
 
-	fileTmpl    *template.Template
-	fileTmplRaw = `package {{.Package}}
+	modelTmpl    *template.Template
+	modelTmplRaw = `package {{.Package}}
 {{if .ImportPath}}
 import (
 	{{- range .ImportPath}}
@@ -46,9 +46,9 @@ import (
 	}
 {{- end}}
 `
-	handlerPostStructTmpl    *template.Template
-	handlerPostStructTmplRaw = `
-// Create{{.TableName}}Request request form
+	handlerCreateStructTmpl    *template.Template
+	handlerCreateStructTmplRaw = `
+// Create{{.TableName}}Request create params
 type Create{{.TableName}}Request struct {
 // todo fill in the binding rules https://github.com/go-playground/validator
 {{- range .Fields}}
@@ -56,9 +56,9 @@ type Create{{.TableName}}Request struct {
 {{- end}}
 }
 `
-	handlerPutStructTmpl    *template.Template
-	handlerPutStructTmplRaw = `
-// Update{{.TableName}}ByIDRequest update form
+	handlerUpdateStructTmpl    *template.Template
+	handlerUpdateStructTmplRaw = `
+// Update{{.TableName}}ByIDRequest update params
 type Update{{.TableName}}ByIDRequest struct {
 {{- range .Fields}}
 	{{.Name}}  {{.GoType}} ` + "`" + `json:"{{.ColName}}" binding:""` + "`" + `{{if .Comment}} // {{.Comment}}{{end}}
@@ -66,9 +66,9 @@ type Update{{.TableName}}ByIDRequest struct {
 }
 `
 
-	handlerGetStructTmpl    *template.Template
-	handlerGetStructTmplRaw = `
-// Get{{.TableName}}ByIDRespond respond data
+	handlerDetailStructTmpl    *template.Template
+	handlerDetailStructTmplRaw = `
+// Get{{.TableName}}ByIDRespond respond detail
 type Get{{.TableName}}ByIDRespond struct {
 {{- range .Fields}}
 	{{.Name}}  {{.GoType}} ` + "`" + `json:"{{.ColName}}"` + "`" + `{{if .Comment}} // {{.Comment}}{{end}}
@@ -90,11 +90,11 @@ type Get{{.TableName}}ByIDRespond struct {
 func initTemplate() {
 	tmplParseOnce.Do(func() {
 		var err error
-		structTmpl, err = template.New("goStruct").Parse(structTmplRaw)
+		modelStructTmpl, err = template.New("goStruct").Parse(modelStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}
-		fileTmpl, err = template.New("goFile").Parse(fileTmplRaw)
+		modelTmpl, err = template.New("goFile").Parse(modelTmplRaw)
 		if err != nil {
 			panic(err)
 		}
@@ -102,15 +102,15 @@ func initTemplate() {
 		if err != nil {
 			panic(err)
 		}
-		handlerPostStructTmpl, err = template.New("goPostStruct").Parse(handlerPostStructTmplRaw)
+		handlerCreateStructTmpl, err = template.New("goPostStruct").Parse(handlerCreateStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}
-		handlerPutStructTmpl, err = template.New("goPutStruct").Parse(handlerPutStructTmplRaw)
+		handlerUpdateStructTmpl, err = template.New("goPutStruct").Parse(handlerUpdateStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}
-		handlerGetStructTmpl, err = template.New("goGetStruct").Parse(handlerGetStructTmplRaw)
+		handlerDetailStructTmpl, err = template.New("goGetStruct").Parse(handlerDetailStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}

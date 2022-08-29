@@ -2,15 +2,16 @@ package covert
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils/sql2gorm"
+	"github.com/zhufuyi/goctl/pkg/sql2code"
 )
 
 // Sql2GormCommand sql to gorm
 func Sql2GormCommand() *cobra.Command {
 	var (
 		// sql to gorm args
-		sqlArgs = sql2gorm.Args{}
+		sqlArgs = sql2code.Args{}
 	)
 
 	cmd := &cobra.Command{
@@ -19,23 +20,29 @@ func Sql2GormCommand() *cobra.Command {
 		Long: `covert sql to gorm.
 
 Examples:
-  # covert sql to gorm from sql
+  # covert sql to gorm model code
   goctl covert sql --sql="sql text"
 
-  # covert sql to gorm from file
+  # covert sql file to gorm model code
   goctl covert sql --file=test.sql
 
-  # covert sql to gorm from db
+  # covert mysql table gorm model code
   goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # covert sql to gorm, set package name and json tag
+  # covert mysql table to gorm model code and embed gorm.Model
+  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
+
+  # covert mysql table to handler request and respond struct code,  other type json or dao
+  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --code-type=handler
+
+  # covert sql file to gorm model code and add json tag
   goctl covert sql --file=test.sql --pkg-name=user --json-tag
   goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := sql2gorm.GetGormCode(&sqlArgs)
+			out, err := sql2code.GetGormCode(&sqlArgs)
 			if err != nil {
 				return err
 			}
@@ -51,7 +58,9 @@ Examples:
 	cmd.Flags().StringVarP(&sqlArgs.DBDsn, "db-dsn", "d", "", "db content addr, E.g. user:password@(host:port)/database")
 	cmd.Flags().StringVarP(&sqlArgs.DBTable, "db-table", "t", "", "table name")
 	cmd.Flags().StringVarP(&sqlArgs.Package, "pkg-name", "p", "", "package name")
+	cmd.Flags().StringVarP(&sqlArgs.CodeType, "code-type", "c", "model", "specify the use of the generated code, support 4 types, model(default), json, dao, handler")
 	cmd.Flags().BoolVarP(&sqlArgs.JsonTag, "json-tag", "j", false, "whether to generate json tag")
+	cmd.Flags().BoolVarP(&sqlArgs.IsEmbed, "embedded", "e", false, "whether to embed 'gorm.Model'")
 	cmd.Flags().IntVarP(&sqlArgs.JsonNamedType, "json-named-type", "J", 0, "json named type, 0:snake_case, other:camelCase")
 
 	return cmd

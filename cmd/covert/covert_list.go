@@ -3,8 +3,9 @@ package covert
 import (
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/utils"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils"
 )
 
 const (

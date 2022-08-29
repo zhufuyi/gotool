@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/utils/toStruct"
+	"github.com/zhufuyi/goctl/pkg/toStruct"
 )
 
 // Yaml2StructCommand covert yaml to struct command
