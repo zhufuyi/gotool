@@ -9,14 +9,15 @@ import (
 )
 
 const (
+	// GenTypeDao model 类型
+	GenTypeModel = "model"
+
 	// GenTypeDao dao 类型
 	GenTypeDao = "dao"
-	// GenTypeDao dao 类型
-	GenTypeModel = "model"
-	// GenTypeApi api 类型
-	GenTypeApi = "api"
-	// GenTypeWeb web 类型
-	GenTypeWeb = "web"
+
+	// GenTypeHandler handler 类型
+	GenTypeHandler = "handler"
+
 	// GenTypeUser user 类型
 	GenTypeUser = "user"
 )
@@ -37,9 +38,9 @@ Examples:
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println(utils.ListTypeNames(
+				GenTypeModel,
 				GenTypeDao,
-				GenTypeApi,
-				GenTypeWeb,
+				GenTypeHandler,
 				GenTypeUser,
 			))
 			return nil

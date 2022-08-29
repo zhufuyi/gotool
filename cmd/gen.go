@@ -24,8 +24,8 @@ Examples:
 		gen.ListTypesCommand(),
 		gen.ModelCommand(),
 		gen.DaoCommand(),
-		gen.ApiCommand(),
-		gen.WebCommand(),
+		gen.HandlerCommand(),
+
 		gen.UserCommand(),
 	)
 

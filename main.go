@@ -20,15 +20,10 @@ var modelFS embed.FS
 //go:embed templates/dao
 var daoFS embed.FS
 
-// api模板目录
+// handler模板目录
 //
-//go:embed templates/api
-var apiFS embed.FS
-
-// web模板目录
-//
-//go:embed templates/web
-var webFS embed.FS
+//go:embed templates/handler
+var handlerFS embed.FS
 
 // user模板目录
 //
@@ -49,14 +44,9 @@ func main() {
 			FilePath: "templates/dao",
 		},
 		{
-			Name:     gen.GenTypeApi,
-			FS:       apiFS,
-			FilePath: "templates/api",
-		},
-		{
-			Name:     gen.GenTypeWeb,
-			FS:       webFS,
-			FilePath: "templates/web",
+			Name:     gen.GenTypeHandler,
+			FS:       handlerFS,
+			FilePath: "templates/handler",
 		},
 		{
 			Name:     gen.GenTypeUser,
