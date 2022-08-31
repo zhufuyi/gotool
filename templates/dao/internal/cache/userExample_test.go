@@ -113,7 +113,7 @@ func Test_userExampleCache_MultiSet(t *testing.T) {
 	}
 }
 
-func Test_userExampleCache_DelUser(t *testing.T) {
+func Test_userExampleCache_Del(t *testing.T) {
 	setup()
 	defer teardown()
 

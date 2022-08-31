@@ -77,8 +77,33 @@ func (d *userExampleDao) UpdateByID(ctx context.Context, table *model.UserExampl
 	}
 
 	update := map[string]interface{}{}
-	// todo generate update fields code
-
+	// todo generate the update fields code to here
+	// delete the templates code start
+	if table.Name != "" {
+		update["name"] = table.Name
+	}
+	if table.Password != "" {
+		update["password"] = table.Password
+	}
+	if table.Email != "" {
+		update["email"] = table.Email
+	}
+	if table.Phone != "" {
+		update["phone"] = table.Phone
+	}
+	if table.Avatar != "" {
+		update["avatar"] = table.Avatar
+	}
+	if table.Age > 0 {
+		update["age"] = table.Age
+	}
+	if table.Gender > 0 {
+		update["gender"] = table.Gender
+	}
+	if table.LoginAt > 0 {
+		update["login_at"] = table.LoginAt
+	}
+	// delete the templates code end
 	err := d.db.WithContext(ctx).Model(table).Where("id = ?", table.ID).Updates(update).Error
 	if err != nil {
 		return err
@@ -135,20 +160,35 @@ func (d *userExampleDao) GetByID(ctx context.Context, id uint64) (*model.UserExa
 	return record, nil
 }
 
-// GetByColumns 根据列信息筛选多条记录
-// columns 列信息，列名称、列值、表达式，列之间逻辑关系
-// page表示页码，从0开始, size表示每页行数, sort排序字段，默认是id倒叙，可以在字段前添加-号表示倒序，无-号表示升序
-// 示例：查询年龄大于20的男性
+// GetByColumns 根据分页和列信息筛选多条记录
+// params 包括分页参数和查询参数
+// 分页参数(必须):
+
+//	page: 页码，从0开始
+//	size: 每页行数
+//	sort: 排序字段，默认是id倒叙，可以在字段前添加-号表示倒序，没有-号表示升序，多个字段用逗号分隔
 //
-//	columns=[]*mysql.Column{
-//		{
-//			Name:  "gender",
-//			Value: "男",
-//		},
+// 查询参数(非必须):
+//
+//	name: 列名
+//	exp: 表达式，有=、!=、>、>=、<、<=、like七种类型，值为空时默认是=
+//	value: 列值
+//	logic: 表示逻辑类型，有&(and)、||(or)两种类型，值为空时默认是and
+//
+// 示例: 查询年龄大于20的男性
+//
+//	params = &query.Params{
+//	    Page: 0,
+//	    Size: 20,
+//	    Columns: []query.Column{
 //		{
 //			Name:    "age",
 //			Exp: ">",
 //			Value:   20,
+//		},
+//		{
+//			Name:  "gender",
+//			Value: "男",
 //		},
 //	}
 func (d *userExampleDao) GetByColumns(ctx context.Context, params *query.Params) ([]*model.UserExample, int64, error) {

@@ -1,18 +1,19 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/zhufuyi/goctl/cmd/covert"
+
+	"github.com/spf13/cobra"
 )
 
 func convertCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "covert <type>",
-		Short: "resource type conversion",
-		Long: `Resource type conversion.
+		Short: "covert resources",
+		Long: `Covert resources.
 
 Examples:
-  # show covert types
+  # show covert resource types
   goctl covert list
 
 `,
@@ -22,7 +23,7 @@ Examples:
 
 	cmd.AddCommand(
 		covert.ListTypesCommand(),
-		covert.Sql2GormCommand(),
+		covert.SQL2GormCommand(),
 		covert.JSON2StructCommand(),
 		covert.Yaml2StructCommand(),
 	)

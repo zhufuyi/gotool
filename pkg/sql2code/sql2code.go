@@ -10,19 +10,19 @@ import (
 
 // Args 参数
 type Args struct {
-	Sql string // DDL sql
+	SQL string // DDL sql
 
-	InputFile string // 读取文件的DDL sql
+	DDLFile string // 读取文件的DDL sql
 
-	DBDsn   string // 从db获取表的DDL sq
+	DBDsn   string // 从db获取表的DDL sql
 	DBTable string
 
-	Package        string // 生成字段的包名
-	JsonTag        bool   // 是否包括json tag
-	JsonNamedType  int    // json命名类型，0:默认，其他值表示驼峰
-	GormType       bool   // gorm type
+	Package        string // 生成字段的包名(只有model类型有效)
+	GormType       bool   // 是否显示gorm type名称(只有model类型代码有效)
+	JSONTag        bool   // 是否包括json tag
+	JSONNamedType  int    // json命名类型，0:和列名一致，其他值表示驼峰
 	IsEmbed        bool   // 是否嵌入gorm.Model
-	CodeType       string // 指定生成代码用途，支持4中类型，分别是 model, json, dao, handler
+	CodeType       string // 指定生成代码用途，支持4中类型，分别是 model(默认), json, dao, handler
 	ForceTableName bool
 	Charset        string
 	Collation      string
@@ -32,16 +32,23 @@ type Args struct {
 	NullStyle      string
 }
 
+func (a *Args) checkValid() error {
+	if a.SQL == "" && a.DDLFile == "" && (a.DBDsn == "" && a.DBTable == "") {
+		return errors.New("you must specify sql or ddl file")
+	}
+	return nil
+}
+
 func getSql(args *Args) (string, error) {
-	if args.Sql != "" {
-		return args.Sql, nil
+	if args.SQL != "" {
+		return args.SQL, nil
 	}
 
 	sql := ""
-	if args.InputFile != "" {
-		b, err := ioutil.ReadFile(args.InputFile)
+	if args.DDLFile != "" {
+		b, err := ioutil.ReadFile(args.DDLFile)
 		if err != nil {
-			return sql, fmt.Errorf("read %s failed, %s\n", args.InputFile, err)
+			return sql, fmt.Errorf("read %s failed, %s\n", args.DDLFile, err)
 		}
 		return string(b), nil
 
@@ -68,8 +75,8 @@ func getOptions(args *Args) []parser.Option {
 	if args.Collation != "" {
 		opts = append(opts, parser.WithCollation(args.Collation))
 	}
-	if args.JsonTag {
-		opts = append(opts, parser.WithJsonTag(args.JsonNamedType))
+	if args.JSONTag {
+		opts = append(opts, parser.WithJsonTag(args.JSONNamedType))
 	}
 	if args.TablePrefix != "" {
 		opts = append(opts, parser.WithTablePrefix(args.TablePrefix))
@@ -110,9 +117,9 @@ func getOptions(args *Args) []parser.Option {
 	return opts
 }
 
-// GetGormCode 根据sql生成gorm代码，sql可以从参数、文件、db三种方式获取，优先从高到低
-func GetGormCode(args *Args) (string, error) {
-	codes, err := GetCodes(args)
+// GenerateOne 根据sql生成gorm代码，sql可以从参数、文件、db三种方式获取，优先从高到低
+func GenerateOne(args *Args) (string, error) {
+	codes, err := Generate(args)
 	if err != nil {
 		return "", err
 	}
@@ -128,8 +135,12 @@ func GetGormCode(args *Args) (string, error) {
 	return out, nil
 }
 
-// GetCodes 生成model, json, dao, handler不同用途代码
-func GetCodes(args *Args) (map[string]string, error) {
+// Generate 生成model, json, dao, handler不同用途代码
+func Generate(args *Args) (map[string]string, error) {
+	if err := args.checkValid(); err != nil {
+		return nil, err
+	}
+
 	sql, err := getSql(args)
 	if err != nil {
 		return nil, err

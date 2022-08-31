@@ -3,11 +3,11 @@ package templates
 import (
 	"embed"
 
-	"github.com/zhufuyi/goctl/pkg/replace"
+	"github.com/zhufuyi/goctl/pkg/replacer"
 )
 
-// Handers 名称对应模板处理接口
-var Handers = map[string]replace.Handler{}
+// Replacers 各个模板对应的接口
+var Replacers = map[string]replacer.Replacer{}
 
 // Template 模板信息
 type Template struct {
@@ -20,10 +20,10 @@ type Template struct {
 func Init(templates []Template) {
 	var err error
 	for _, v := range templates {
-		if _, ok := Handers[v.Name]; ok {
+		if _, ok := Replacers[v.Name]; ok {
 			panic(v.Name + " already exists")
 		}
-		Handers[v.Name], err = replace.New(v.FilePath, v.FS)
+		Replacers[v.Name], err = replacer.NewWithFS(v.FilePath, v.FS)
 		if err != nil {
 			panic(err)
 		}

@@ -3,15 +3,16 @@ package covert
 import (
 	"fmt"
 
+	"github.com/zhufuyi/goctl/pkg/jy2struct"
+
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/goctl/pkg/toStruct"
 )
 
 // Yaml2StructCommand covert yaml to struct command
 func Yaml2StructCommand() *cobra.Command {
 	var (
 		// yaml to struct args
-		toStructArgs = toStruct.Args{}
+		ysArgs = jy2struct.Args{}
 	)
 
 	cmd := &cobra.Command{
@@ -33,8 +34,8 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			toStructArgs.Format = covertTypeYaml2Struct
-			out, err := toStruct.GetStructCode(&toStructArgs)
+			ysArgs.Format = covertTypeYaml2Struct
+			out, err := jy2struct.Covert(&ysArgs)
 			if err != nil {
 				return err
 			}
@@ -43,10 +44,10 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVarP(&toStructArgs.Data, "data", "d", "", "yaml data")
-	cmd.Flags().StringVarP(&toStructArgs.InputFile, "file", "f", "", "yaml file")
-	cmd.Flags().StringVarP(&toStructArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
-	cmd.Flags().BoolVarP(&toStructArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
+	cmd.Flags().StringVarP(&ysArgs.Data, "data", "d", "", "yaml data")
+	cmd.Flags().StringVarP(&ysArgs.InputFile, "file", "f", "", "yaml file")
+	cmd.Flags().StringVarP(&ysArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
+	cmd.Flags().BoolVarP(&ysArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
 
 	return cmd
 }

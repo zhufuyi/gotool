@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// GenTypeDao model 类型
+	// GenTypeModel model 类型
 	GenTypeModel = "model"
 
 	// GenTypeDao dao 类型
@@ -18,13 +18,15 @@ const (
 	// GenTypeHandler handler 类型
 	GenTypeHandler = "handler"
 
-	// GenTypeUser user 类型
-	GenTypeUser = "user"
+	// GenTypeHTTP http 类型
+	GenTypeHTTP = "http"
 )
+
+var genTypes = []string{GenTypeModel, GenTypeDao, GenTypeHandler, GenTypeHTTP}
 
 // ListTypesCommand show generate support types
 func ListTypesCommand() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "list",
 		Short: "List generate types",
 		Long: `list generate types.
@@ -37,15 +39,8 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(utils.ListTypeNames(
-				GenTypeModel,
-				GenTypeDao,
-				GenTypeHandler,
-				GenTypeUser,
-			))
+			fmt.Println(utils.ListTypeNames(genTypes...))
 			return nil
 		},
 	}
-
-	return cmd
 }

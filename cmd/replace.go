@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zhufuyi/goctl/pkg/replace"
+	"github.com/zhufuyi/goctl/pkg/replacer"
 
 	"github.com/spf13/cobra"
 )
@@ -56,31 +56,31 @@ func runReplaceCommand(srcPath string, oldValues []string, newValues []string) e
 		return errors.New("len(old) must be equal to len(new)")
 	}
 
-	handler, err := replace.NewSrc(srcPath)
+	r, err := replacer.New(srcPath)
 	if err != nil {
 		return err
 	}
 
 	// 设置模板信息
 	templateIgnoreFiles := []string{} // 忽略处理的文件
-	fields := []replace.Field{}
+	var fields []replacer.Field
 	for i, old := range oldValues {
-		fields = append(fields, replace.Field{
+		fields = append(fields, replacer.Field{
 			Old:             old,
 			New:             newValues[i],
 			IsCaseSensitive: false,
 		})
 	}
 
-	handler.SetIgnoreFiles(templateIgnoreFiles...)
-	handler.SetReplacementFields(fields)
-	if err := handler.SetOutPath("", "replace"); err != nil {
+	r.SetIgnoreFiles(templateIgnoreFiles...)
+	r.SetReplacementFields(fields)
+	if err = r.SetOutPath("", "replace"); err != nil {
 		return err
 	}
-	if err := handler.SaveFiles(); err != nil {
+	if err = r.SaveFiles(); err != nil {
 		return err
 	}
 
-	fmt.Printf("replace successfully, output = %s\n\n", handler.GetOutPath())
+	fmt.Printf("replace successfully, output = %s\n\n", r.GetOutPath())
 	return nil
 }

@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/zhufuyi/goctl/cmd/gen"
 
@@ -25,10 +27,10 @@ var daoFS embed.FS
 //go:embed templates/handler
 var handlerFS embed.FS
 
-// user模板目录
+// http服务模板目录
 //
-//go:embed templates/user
-var userFS embed.FS
+//go:embed templates/http_server
+var httpFS embed.FS
 
 func main() {
 	// 初始化模板文件
@@ -49,12 +51,14 @@ func main() {
 			FilePath: "templates/handler",
 		},
 		{
-			Name:     gen.GenTypeUser,
-			FS:       userFS,
-			FilePath: "templates/user",
+			Name:     gen.GenTypeHTTP,
+			FS:       httpFS,
+			FilePath: "templates/http_server",
 		},
 	})
 
+	rand.Seed(time.Now().UnixNano())
+	
 	rootCMD := cmd.NewRootCMD()
 	if err := rootCMD.Execute(); err != nil {
 		rootCMD.PrintErrln("Error:", err)

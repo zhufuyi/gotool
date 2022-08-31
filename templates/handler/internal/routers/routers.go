@@ -3,20 +3,23 @@ package routers
 import (
 	"net/http"
 
-	"github.com/zhufuyi/goctl/templates/handler/config"
-	"github.com/zhufuyi/goctl/templates/handler/docs"
-	"github.com/zhufuyi/goctl/templates/handler/internal/handler"
-
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/zhufuyi/goctl/templates/handler/config"
+	"github.com/zhufuyi/goctl/templates/handler/docs"
 	"github.com/zhufuyi/pkg/gin/middleware"
 	"github.com/zhufuyi/pkg/gin/middleware/metrics"
 	"github.com/zhufuyi/pkg/gin/middleware/ratelimiter"
 	"github.com/zhufuyi/pkg/gin/validator"
 	"github.com/zhufuyi/pkg/logger"
+)
+
+var (
+	routerFns []func()         // 路由集合
+	apiV1     *gin.RouterGroup // 初始路由组
 )
 
 // NewRouter 实例化路由
@@ -32,6 +35,7 @@ func NewRouter() *gin.Engine {
 	// 日志
 	r.Use(middleware.Logging(
 		middleware.WithLog(logger.Get()),
+		middleware.WithRequestIDFromContext(),
 		middleware.WithIgnoreRoutes("/metrics"), // 忽略路由
 	))
 
@@ -71,10 +75,12 @@ func NewRouter() *gin.Engine {
 	docs.SwaggerInfo.BasePath = ""
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	apiV1 := r.Group("/api/v1")
+	apiV1 = r.Group("/api/v1")
 
-	// 注册路由
-	userExampleRouter(apiV1, handler.NewUserExampleHandler())
+	// 注册所有路由
+	for _, fn := range routerFns {
+		fn()
+	}
 
 	return r
 }

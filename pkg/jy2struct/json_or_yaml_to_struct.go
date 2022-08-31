@@ -1,4 +1,4 @@
-package toStruct
+package jy2struct
 
 import (
 	"bytes"

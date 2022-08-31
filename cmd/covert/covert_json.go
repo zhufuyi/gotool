@@ -3,7 +3,7 @@ package covert
 import (
 	"fmt"
 
-	"github.com/zhufuyi/goctl/pkg/toStruct"
+	"github.com/zhufuyi/goctl/pkg/jy2struct"
 
 	"github.com/spf13/cobra"
 )
@@ -12,7 +12,7 @@ import (
 func JSON2StructCommand() *cobra.Command {
 	var (
 		// json to struct args
-		toStructArgs = toStruct.Args{}
+		jsArgs = jy2struct.Args{}
 	)
 
 	cmd := &cobra.Command{
@@ -34,8 +34,8 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			toStructArgs.Format = covertTypeJSON2Struct
-			out, err := toStruct.GetStructCode(&toStructArgs)
+			jsArgs.Format = covertTypeJSON2Struct
+			out, err := jy2struct.Covert(&jsArgs)
 			if err != nil {
 				return err
 			}
@@ -44,10 +44,10 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVarP(&toStructArgs.Data, "data", "d", "", "json data")
-	cmd.Flags().StringVarP(&toStructArgs.InputFile, "file", "f", "", "json file")
-	cmd.Flags().StringVarP(&toStructArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
-	cmd.Flags().BoolVarP(&toStructArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
+	cmd.Flags().StringVarP(&jsArgs.Data, "data", "d", "", "json data")
+	cmd.Flags().StringVarP(&jsArgs.InputFile, "file", "f", "", "json file")
+	cmd.Flags().StringVarP(&jsArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
+	cmd.Flags().BoolVarP(&jsArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
 
 	return cmd
 }

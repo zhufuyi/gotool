@@ -9,10 +9,12 @@ import (
 )
 
 const (
-	covertTypeSql2gorm    = "sql"
+	covertTypeSQL2gorm    = "sql"
 	covertTypeJSON2Struct = "json"
 	covertTypeYaml2Struct = "yaml"
 )
+
+var covertTypes = []string{covertTypeSQL2gorm, covertTypeJSON2Struct, covertTypeYaml2Struct}
 
 // ListTypesCommand show covert support types
 func ListTypesCommand() *cobra.Command {
@@ -29,11 +31,7 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(utils.ListTypeNames(
-				covertTypeSql2gorm,
-				covertTypeJSON2Struct,
-				covertTypeYaml2Struct,
-			))
+			fmt.Println(utils.ListTypeNames(covertTypes...))
 			return nil
 		},
 	}

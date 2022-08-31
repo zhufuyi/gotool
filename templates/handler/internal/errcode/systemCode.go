@@ -2,7 +2,7 @@ package errcode
 
 import "github.com/zhufuyi/pkg/gin/errcode"
 
-// 系统级别错误码，无Err前缀，错误码小于2000
+// 系统级别错误码，无Err前缀，错误码小于20000
 var (
 	Success             = errcode.Success
 	InvalidParams       = errcode.InvalidParams

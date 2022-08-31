@@ -3,12 +3,13 @@ package covert
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/zhufuyi/goctl/pkg/sql2code"
+
+	"github.com/spf13/cobra"
 )
 
-// Sql2GormCommand sql to gorm
-func Sql2GormCommand() *cobra.Command {
+// SQL2GormCommand sql to gorm
+func SQL2GormCommand() *cobra.Command {
 	var (
 		// sql to gorm args
 		sqlArgs = sql2code.Args{}
@@ -42,7 +43,7 @@ Examples:
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			out, err := sql2code.GetGormCode(&sqlArgs)
+			out, err := sql2code.GenerateOne(&sqlArgs)
 			if err != nil {
 				return err
 			}
@@ -53,15 +54,15 @@ Examples:
 	}
 
 	// sql to gorm 参数
-	cmd.Flags().StringVarP(&sqlArgs.Sql, "sql", "s", "", "sql data")
-	cmd.Flags().StringVarP(&sqlArgs.InputFile, "ddl-file", "f", "", "input DDL sql file")
+	cmd.Flags().StringVarP(&sqlArgs.SQL, "sql", "s", "", "sql data")
+	cmd.Flags().StringVarP(&sqlArgs.DDLFile, "file", "f", "", "input DDL sql file")
 	cmd.Flags().StringVarP(&sqlArgs.DBDsn, "db-dsn", "d", "", "db content addr, E.g. user:password@(host:port)/database")
 	cmd.Flags().StringVarP(&sqlArgs.DBTable, "db-table", "t", "", "table name")
 	cmd.Flags().StringVarP(&sqlArgs.Package, "pkg-name", "p", "", "package name")
 	cmd.Flags().StringVarP(&sqlArgs.CodeType, "code-type", "c", "model", "specify the use of the generated code, support 4 types, model(default), json, dao, handler")
-	cmd.Flags().BoolVarP(&sqlArgs.JsonTag, "json-tag", "j", false, "whether to generate json tag")
+	cmd.Flags().BoolVarP(&sqlArgs.JSONTag, "json-tag", "j", false, "whether to generate json tag")
 	cmd.Flags().BoolVarP(&sqlArgs.IsEmbed, "embedded", "e", false, "whether to embed 'gorm.Model'")
-	cmd.Flags().IntVarP(&sqlArgs.JsonNamedType, "json-named-type", "J", 0, "json named type, 0:snake_case, other:camelCase")
+	cmd.Flags().IntVarP(&sqlArgs.JSONNamedType, "json-named-type", "J", 0, "json named type, 0:snake_case, other:camelCase")
 
 	return cmd
 }

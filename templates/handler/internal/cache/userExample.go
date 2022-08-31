@@ -99,7 +99,6 @@ func (c *userExampleCache) MultiGet(ctx context.Context, ids []uint64) (map[stri
 		keys = append(keys, cacheKey)
 	}
 
-	// NOTE: 需要在这里make实例化，如果在返回参数里直接定义会报 nil map
 	itemMap := make(map[string]*model.UserExample)
 	err := c.cache.MultiGet(ctx, keys, itemMap)
 	if err != nil {

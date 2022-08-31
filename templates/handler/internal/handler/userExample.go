@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/zhufuyi/goctl/templates/handler/internal/cache"
 	"github.com/zhufuyi/goctl/templates/handler/internal/dao"
 	"github.com/zhufuyi/goctl/templates/handler/internal/errcode"
@@ -53,7 +55,7 @@ func (h *userExampleHandler) Create(c *gin.Context) {
 	form := &CreateUserExampleRequest{}
 	err := c.ShouldBindJSON(form)
 	if err != nil {
-		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.RequestID(c))
+		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InvalidParams)
 		return
 	}
@@ -61,14 +63,14 @@ func (h *userExampleHandler) Create(c *gin.Context) {
 	userExample := &model.UserExample{}
 	err = copier.Copy(userExample, form)
 	if err != nil {
-		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InternalServerError)
 		return
 	}
 
 	err = h.iDao.Create(c.Request.Context(), userExample)
 	if err != nil {
-		logger.Error("Create error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("Create error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.ErrCreateUserExample)
 		return
 	}
@@ -93,7 +95,7 @@ func (h *userExampleHandler) DeleteByID(c *gin.Context) {
 
 	err := h.iDao.DeleteByID(c.Request.Context(), id)
 	if err != nil {
-		logger.Error("DeleteByID error", logger.Err(err), logger.Any("id", id), utils.RequestID(c))
+		logger.Error("DeleteByID error", logger.Err(err), logger.Any("id", id), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.ErrDeleteUserExample)
 		return
 	}
@@ -120,7 +122,7 @@ func (h *userExampleHandler) UpdateByID(c *gin.Context) {
 	form := &UpdateUserExampleByIDRequest{}
 	err := c.ShouldBindJSON(form)
 	if err != nil {
-		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.RequestID(c))
+		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InvalidParams)
 		return
 	}
@@ -129,14 +131,14 @@ func (h *userExampleHandler) UpdateByID(c *gin.Context) {
 	userExample := &model.UserExample{}
 	err = copier.Copy(userExample, form)
 	if err != nil {
-		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InternalServerError)
 		return
 	}
 
 	err = h.iDao.UpdateByID(c.Request.Context(), userExample)
 	if err != nil {
-		logger.Error("UpdateByID error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("UpdateByID error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.ErrUpdateUserExample)
 		return
 	}
@@ -162,10 +164,10 @@ func (h *userExampleHandler) GetByID(c *gin.Context) {
 	userExample, err := h.iDao.GetByID(c.Request.Context(), id)
 	if err != nil {
 		if err.Error() == query.ErrNotFound.Error() {
-			logger.Warn("GetByID not found", logger.Err(err), logger.Any("id", id), utils.RequestID(c))
+			logger.Warn("GetByID not found", logger.Err(err), logger.Any("id", id), utils.FieldRequestIDFromContext(c))
 			response.Error(c, errcode.NotFound)
 		} else {
-			logger.Error("GetByID error", logger.Err(err), logger.Any("id", id), utils.RequestID(c))
+			logger.Error("GetByID error", logger.Err(err), logger.Any("id", id), utils.FieldRequestIDFromContext(c))
 			response.Error(c, errcode.ErrGetUserExample)
 		}
 		return
@@ -174,7 +176,7 @@ func (h *userExampleHandler) GetByID(c *gin.Context) {
 	data := &GetUserExampleByIDRespond{}
 	err = copier.Copy(data, userExample)
 	if err != nil {
-		logger.Error("Copy error", logger.Err(err), logger.Any("id", id), utils.RequestID(c))
+		logger.Error("Copy error", logger.Err(err), logger.Any("id", id), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InternalServerError)
 		return
 	}
@@ -196,21 +198,21 @@ func (h *userExampleHandler) List(c *gin.Context) {
 	form := &GetUserExamplesRequest{}
 	err := c.ShouldBindJSON(form)
 	if err != nil {
-		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.RequestID(c))
+		logger.Warn("ShouldBindJSON error: ", logger.Err(err), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InvalidParams)
 		return
 	}
 
 	userExamples, total, err := h.iDao.GetByColumns(c.Request.Context(), &form.Params)
 	if err != nil {
-		logger.Error("GetByColumns error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("GetByColumns error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.ErrGetUserExample)
 		return
 	}
 
 	data, err := convertUserExamples(userExamples)
 	if err != nil {
-		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.RequestID(c))
+		logger.Error("Copy error", logger.Err(err), logger.Any("form", form), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InternalServerError)
 		return
 	}
@@ -222,22 +224,50 @@ func (h *userExampleHandler) List(c *gin.Context) {
 }
 
 // ----------------------------------- 定义请求参数和返回结果 -----------------------------
-
-// todo generate request and response struct code
+// todo generate the request and response struct to here
+// delete the templates code start
 
 // CreateUserExampleRequest create params
+// binding  https://github.com/go-playground/validator
 type CreateUserExampleRequest struct {
+	Name     string `json:"name" binding:"min=2"`         // 名称
+	Email    string `json:"email" binding:"email"`        // 邮件
+	Password string `json:"password" binding:"md5"`       // 密码
+	Phone    string `form:"phone" binding:"e164"`         // 手机号码，必须在前加'+86'
+	Avatar   string `form:"avatar" binding:"min=5"`       // 头像
+	Age      int    `form:"age" binding:"gt=0,lt=120"`    // 年龄
+	Gender   int    `form:"gender" binding:"gte=0,lte=2"` // 性别，1:男，2:女
 }
 
 // UpdateUserExampleByIDRequest update params
 type UpdateUserExampleByIDRequest struct {
-	ID uint64
+	ID       uint64 `json:"id" binding:"-"`      // id
+	Name     string `json:"name" binding:""`     // 名称
+	Email    string `json:"email" binding:""`    // 邮件
+	Password string `json:"password" binding:""` // 密码
+	Phone    string `form:"phone" binding:""`    // 手机号码，必须在前加'+86'
+	Avatar   string `form:"avatar" binding:""`   // 头像
+	Age      int    `form:"age" binding:""`      // 年龄
+	Gender   int    `form:"gender" binding:""`   // 性别，1:男，2:女
 }
 
 // GetUserExampleByIDRespond respond detail
 type GetUserExampleByIDRespond struct {
-	ID string
+	ID string `json:"id"` // id，使用字符串
+
+	Name      string    `json:"name"`       // 名称
+	Email     string    `json:"email"`      // 邮件
+	Phone     string    `json:"phone"`      // 手机号码
+	Avatar    string    `json:"avatar"`     // 头像
+	Age       int       `json:"age"`        // 年龄
+	Gender    int       `json:"gender"`     // 性别，1:男，2:女
+	Status    int       `json:"status"`     // 账号状态
+	LoginAt   int64     `json:"login_at"`   // 登录时间戳
+	CreatedAt time.Time `json:"created_at"` // 创建时间
+	UpdatedAt time.Time `json:"updated_at"` // 更新时间
 }
+
+// delete the templates code end
 
 // GetUserExamplesRequest query params
 type GetUserExamplesRequest struct {
@@ -255,7 +285,7 @@ func getUserExampleIDFromPath(c *gin.Context) (string, uint64, bool) {
 	idStr := c.Param("id")
 	id, err := utils.StrToUint64E(idStr)
 	if err != nil || id == 0 {
-		logger.Warn("StrToUint64E error: ", logger.String("idStr", idStr), utils.RequestID(c))
+		logger.Warn("StrToUint64E error: ", logger.String("idStr", idStr), utils.FieldRequestIDFromContext(c))
 		response.Error(c, errcode.InvalidParams)
 		return "", 0, true
 	}

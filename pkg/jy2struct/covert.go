@@ -1,4 +1,4 @@
-package toStruct
+package jy2struct
 
 import (
 	"bytes"
@@ -48,8 +48,8 @@ func (j *Args) checkValid() error {
 	return nil
 }
 
-// GetStructCode json或yaml转go struct
-func GetStructCode(args *Args) (string, error) {
+// Covert json或yaml转go struct
+func Covert(args *Args) (string, error) {
 	err := args.checkValid()
 	if err != nil {
 		return "", err

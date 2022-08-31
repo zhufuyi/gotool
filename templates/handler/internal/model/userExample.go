@@ -1,3 +1,7 @@
+// todo generate model codes to here
+
+// delete the templates code start
+
 package model
 
 import (
@@ -23,3 +27,5 @@ type UserExample struct {
 func (table *UserExample) TableName() string {
 	return "user_example"
 }
+
+// delete the templates code end
