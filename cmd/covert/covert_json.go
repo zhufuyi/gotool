@@ -12,7 +12,8 @@ import (
 func JSON2StructCommand() *cobra.Command {
 	var (
 		// json to struct args
-		jsArgs = jy2struct.Args{}
+		jsArgs  = jy2struct.Args{}
+		outPath = ""
 	)
 
 	cmd := &cobra.Command{
@@ -28,8 +29,10 @@ Examples:
   goctl covert json --file=test.json
 
   # covert json to struct, set tag value and subStruct flag
-  goctl covert json --file=test.sql --tags=gorm --sub-struct=false
+  goctl covert json --file=test.json --tags=gorm --sub-struct=false
 
+  # covert yaml to struct, save to specified directory, file name is config.go
+  goctl covert json --file=test.json --out=/tmp
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,
@@ -39,6 +42,11 @@ Examples:
 			if err != nil {
 				return err
 			}
+
+			if outPath != "" {
+				return saveFile(jsArgs.InputFile, outPath, out)
+			}
+
 			fmt.Println(out)
 			return nil
 		},
@@ -48,6 +56,6 @@ Examples:
 	cmd.Flags().StringVarP(&jsArgs.InputFile, "file", "f", "", "json file")
 	cmd.Flags().StringVarP(&jsArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
 	cmd.Flags().BoolVarP(&jsArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
-
+	cmd.Flags().StringVarP(&outPath, "out", "o", "", "export the code path")
 	return cmd
 }
