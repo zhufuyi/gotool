@@ -3,7 +3,7 @@ package sql2code
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/zhufuyi/goctl/pkg/sql2code/parser"
 )
@@ -39,19 +39,18 @@ func (a *Args) checkValid() error {
 	return nil
 }
 
-func getSql(args *Args) (string, error) {
+func getSQL(args *Args) (string, error) {
 	if args.SQL != "" {
 		return args.SQL, nil
 	}
 
 	sql := ""
 	if args.DDLFile != "" {
-		b, err := ioutil.ReadFile(args.DDLFile)
+		b, err := os.ReadFile(args.DDLFile)
 		if err != nil {
-			return sql, fmt.Errorf("read %s failed, %s\n", args.DDLFile, err)
+			return sql, fmt.Errorf("read %s failed, %s", args.DDLFile, err)
 		}
 		return string(b), nil
-
 	} else if args.DBDsn != "" {
 		if args.DBTable == "" {
 			return sql, errors.New("miss mysql table")
@@ -76,7 +75,7 @@ func getOptions(args *Args) []parser.Option {
 		opts = append(opts, parser.WithCollation(args.Collation))
 	}
 	if args.JSONTag {
-		opts = append(opts, parser.WithJsonTag(args.JSONNamedType))
+		opts = append(opts, parser.WithJSONTag(args.JSONNamedType))
 	}
 	if args.TablePrefix != "" {
 		opts = append(opts, parser.WithTablePrefix(args.TablePrefix))
@@ -129,7 +128,7 @@ func GenerateOne(args *Args) (string, error) {
 	}
 	out, ok := codes[args.CodeType]
 	if !ok {
-		return "", fmt.Errorf("unkown code type %s", args.CodeType)
+		return "", fmt.Errorf("unknown code type %s", args.CodeType)
 	}
 
 	return out, nil
@@ -141,12 +140,12 @@ func Generate(args *Args) (map[string]string, error) {
 		return nil, err
 	}
 
-	sql, err := getSql(args)
+	sql, err := getSQL(args)
 	if err != nil {
 		return nil, err
 	}
 
 	opt := getOptions(args)
 
-	return parser.ParseSql(sql, opt...)
+	return parser.ParseSQL(sql, opt...)
 }

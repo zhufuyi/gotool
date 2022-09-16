@@ -83,6 +83,86 @@ type Get{{.TableName}}ByIDRespond struct {
 }
 `
 
+	protoFileTmpl    *template.Template
+	protoFileTmplRaw = `syntax = "proto3";
+
+package api.{{.TName}}.v1;
+
+import "api/{{.TName}}/v1/query.proto";
+// import "gogo/protobuf/gogoproto/gogo.proto";
+// import "validate/validate.proto";
+
+option go_package = "./pb;pb"; // 生成的文件在proto文件同级别pb目录下
+
+service {{.TName}}Service {
+  rpc Create(Create{{.TableName}}Request) returns (Create{{.TableName}}Reply) {}
+  rpc DeleteByID(Delete{{.TableName}}ByIDRequest) returns (Delete{{.TableName}}ByIDReply) {}
+  rpc UpdateByID(Update{{.TableName}}ByIDRequest) returns (Update{{.TableName}}ByIDReply) {}
+  rpc GetByID(Get{{.TableName}}ByIDRequest) returns (Get{{.TableName}}ByIDReply) {}
+  rpc List(List{{.TableName}}Request) returns (List{{.TableName}}Reply) {}
+}
+
+// protoMessageCreateCode
+
+message Create{{.TableName}}Reply {
+  uint64   id =1;
+}
+
+message Delete{{.TableName}}ByIDRequest {
+  uint64   id =1;
+}
+
+message Delete{{.TableName}}ByIDReply {
+
+}
+
+// protoMessageUpdateCode
+
+message Update{{.TableName}}ByIDReply {
+
+}
+
+// protoMessageDetailCode
+
+message Get{{.TableName}}ByIDRequest {
+  uint64   id =1;
+}
+
+message Get{{.TableName}}ByIDReply {
+  {{.TableName}} {{.TName}} = 1;
+}
+
+message List{{.TableName}}Request {
+  Params params = 1;
+}
+
+message List{{.TableName}}Reply {
+  int64 total =1;
+  repeated {{.TableName}} {{.TName}}s = 2;
+}
+`
+
+	protoMessageCreateTmpl    *template.Template
+	protoMessageCreateTmplRaw = `message Create{{.TableName}}Request {
+{{- range $i, $v := .Fields}}
+	{{$v.GoType}} {{$v.ColName}} = {{$v.AddOne $i}}; {{if $v.Comment}} // {{$v.Comment}}{{end}}
+{{- end}}
+}`
+
+	protoMessageUpdateTmpl    *template.Template
+	protoMessageUpdateTmplRaw = `message Update{{.TableName}}ByIDRequest {
+{{- range $i, $v := .Fields}}
+	{{$v.GoType}} {{$v.ColName}} = {{$v.AddOne $i}}; {{if $v.Comment}} // {{$v.Comment}}{{end}}
+{{- end}}
+}`
+
+	protoMessageDetailTmpl    *template.Template
+	protoMessageDetailTmplRaw = `message {{.TableName}} {
+{{- range $i, $v := .Fields}}
+	{{$v.GoType}} {{$v.ColName}} = {{$v.AddOne $i}}; {{if $v.Comment}} // {{$v.Comment}}{{end}}
+{{- end}}
+}`
+
 	tmplParseOnce sync.Once
 )
 
@@ -114,6 +194,22 @@ func initTemplate() {
 			panic(err)
 		}
 		modelJSONTmpl, err = template.New("modelJSON").Parse(modelJSONTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		protoFileTmpl, err = template.New("protoFile").Parse(protoFileTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		protoMessageCreateTmpl, err = template.New("protoMessageCreate").Parse(protoMessageCreateTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		protoMessageUpdateTmpl, err = template.New("protoMessageUpdate").Parse(protoMessageUpdateTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		protoMessageDetailTmpl, err = template.New("protoMessageDetail").Parse(protoMessageDetailTmplRaw)
 		if err != nil {
 			panic(err)
 		}

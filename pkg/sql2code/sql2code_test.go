@@ -49,7 +49,7 @@ func TestGenerateOne(t *testing.T) {
 		//{
 		//	name: "sql from db",
 		//	args: args{args: &Args{
-		//		DBDsn:   "root:123456@(127.0.0.1:3306)/test",
+		//		DBDsn:   "root:123456@(192.168.3.37:3306)/test",
 		//		DBTable: "user",
 		//	}},
 		//	wantErr: false,
