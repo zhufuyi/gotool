@@ -86,13 +86,12 @@ type Get{{.TableName}}ByIDRespond struct {
 	protoFileTmpl    *template.Template
 	protoFileTmplRaw = `syntax = "proto3";
 
-package api.{{.TName}}.v1;
+package api.userExample.v1;
 
-import "api/{{.TName}}/v1/query.proto";
-// import "gogo/protobuf/gogoproto/gogo.proto";
-// import "validate/validate.proto";
+import "validate/validate.proto";
+import "api/types/types.proto";
 
-option go_package = "./pb;pb"; // 生成的文件在proto文件同级别pb目录下
+option go_package = "github.com/zhufuyi/sponge/api/userExample/v1;v1";
 
 service {{.TName}}Service {
   rpc Create(Create{{.TableName}}Request) returns (Create{{.TableName}}Reply) {}
@@ -133,7 +132,7 @@ message Get{{.TableName}}ByIDReply {
 }
 
 message List{{.TableName}}Request {
-  Params params = 1;
+  types.Params params = 1;
 }
 
 message List{{.TableName}}Reply {
@@ -162,6 +161,24 @@ message List{{.TableName}}Reply {
 	{{$v.GoType}} {{$v.ColName}} = {{$v.AddOne $i}}; {{if $v.Comment}} // {{$v.Comment}}{{end}}
 {{- end}}
 }`
+
+	serviceCreateStructTmpl    *template.Template
+	serviceCreateStructTmplRaw = `
+				return cli.Create(ctx, &pb.Create{{.TableName}}Request{
+					{{- range .Fields}}
+						{{.Name}}:  {{.GoTypeZero}}, {{if .Comment}} // {{.Comment}}{{end}}
+					{{- end}}
+				})
+`
+
+	serviceUpdateStructTmpl    *template.Template
+	serviceUpdateStructTmplRaw = `
+				return cli.UpdateByID(ctx, &pb.Update{{.TableName}}ByIDRequest{
+					{{- range .Fields}}
+						{{.Name}}:  {{.GoTypeZero}}, {{if .Comment}} // {{.Comment}}{{end}}
+					{{- end}}
+				})
+`
 
 	tmplParseOnce sync.Once
 )
@@ -210,6 +227,14 @@ func initTemplate() {
 			panic(err)
 		}
 		protoMessageDetailTmpl, err = template.New("protoMessageDetail").Parse(protoMessageDetailTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		serviceCreateStructTmpl, err = template.New("serviceCreateStruct").Parse(handlerCreateStructTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		serviceUpdateStructTmpl, err = template.New("serviceUpdateStruct").Parse(handlerUpdateStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}

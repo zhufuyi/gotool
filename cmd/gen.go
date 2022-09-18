@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func genWebCommand() *cobra.Command {
+func genCodesCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gen <type>",
+		Use:   "gen <module>",
 		Short: "Generate codes",
 		Long: `generate codes.
 
@@ -22,11 +22,12 @@ Examples:
 	}
 
 	cmd.AddCommand(
-		gen.ListTypesCommand(),
+		gen.ListModulesCommand(),
 		gen.ModelCommand(),
 		gen.DaoCommand(),
 		gen.HandlerCommand(),
 		gen.HTTPCommand(),
+		gen.ProtoCommand(),
 	)
 
 	return cmd
