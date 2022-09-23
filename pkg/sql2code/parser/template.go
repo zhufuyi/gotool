@@ -48,8 +48,8 @@ import (
 	handlerCreateStructTmpl    *template.Template
 	handlerCreateStructTmplRaw = `
 // Create{{.TableName}}Request create params
-type Create{{.TableName}}Request struct {
 // todo fill in the binding rules https://github.com/go-playground/validator
+type Create{{.TableName}}Request struct {
 {{- range .Fields}}
 	{{.Name}}  {{.GoType}} ` + "`" + `json:"{{.ColName}}" binding:""` + "`" + `{{if .Comment}} // {{.Comment}}{{end}}
 {{- end}}
@@ -88,8 +88,8 @@ type Get{{.TableName}}ByIDRespond struct {
 
 package api.userExample.v1;
 
-import "validate/validate.proto";
 import "api/types/types.proto";
+// import "validate/validate.proto";
 
 option go_package = "github.com/zhufuyi/sponge/api/userExample/v1;v1";
 
@@ -98,8 +98,11 @@ service {{.TName}}Service {
   rpc DeleteByID(Delete{{.TableName}}ByIDRequest) returns (Delete{{.TableName}}ByIDReply) {}
   rpc UpdateByID(Update{{.TableName}}ByIDRequest) returns (Update{{.TableName}}ByIDReply) {}
   rpc GetByID(Get{{.TableName}}ByIDRequest) returns (Get{{.TableName}}ByIDReply) {}
+  rpc ListByIDs(List{{.TableName}}ByIDsRequest) returns (List{{.TableName}}ByIDsReply) {}
   rpc List(List{{.TableName}}Request) returns (List{{.TableName}}Reply) {}
 }
+
+// todo fill in the validate rules https://github.com/envoyproxy/protoc-gen-validate#constraint-rules
 
 // protoMessageCreateCode
 
@@ -129,6 +132,14 @@ message Get{{.TableName}}ByIDRequest {
 
 message Get{{.TableName}}ByIDReply {
   {{.TableName}} {{.TName}} = 1;
+}
+
+message List{{.TableName}}ByIDsRequest {
+  repeated uint64 ids = 1;
+}
+
+message List{{.TableName}}ByIDsReply {
+  repeated {{.TableName}} {{.TName}}s = 1;
 }
 
 message List{{.TableName}}Request {
@@ -162,23 +173,40 @@ message List{{.TableName}}Reply {
 {{- end}}
 }`
 
-	serviceCreateStructTmpl    *template.Template
-	serviceCreateStructTmplRaw = `
-				return cli.Create(ctx, &pb.Create{{.TableName}}Request{
-					{{- range .Fields}}
-						{{.Name}}:  {{.GoTypeZero}}, {{if .Comment}} // {{.Comment}}{{end}}
-					{{- end}}
-				})
+	serviceStructTmpl    *template.Template
+	serviceStructTmplRaw = `
+		{
+			name: "Create",
+			fn: func() (interface{}, error) {
+				// todo test after filling in parameters
+// serviceCreateStructCode
+			},
+			wantErr: false,
+		},
+
+		{
+			name: "UpdateByID",
+			fn: func() (interface{}, error) {
+				// todo test after filling in parameters
+// serviceUpdateStructCode
+			},
+			wantErr: false,
+		},
 `
 
-	serviceUpdateStructTmpl    *template.Template
-	serviceUpdateStructTmplRaw = `
-				return cli.UpdateByID(ctx, &pb.Update{{.TableName}}ByIDRequest{
+	serviceCreateStructTmpl    *template.Template
+	serviceCreateStructTmplRaw = `				return cli.Create(ctx, &pb.Create{{.TableName}}Request{
 					{{- range .Fields}}
 						{{.Name}}:  {{.GoTypeZero}}, {{if .Comment}} // {{.Comment}}{{end}}
 					{{- end}}
-				})
-`
+				})`
+
+	serviceUpdateStructTmpl    *template.Template
+	serviceUpdateStructTmplRaw = `				return cli.UpdateByID(ctx, &pb.Update{{.TableName}}ByIDRequest{
+					{{- range .Fields}}
+						{{.Name}}:  {{.GoTypeZero}}, {{if .Comment}} // {{.Comment}}{{end}}
+					{{- end}}
+				})`
 
 	tmplParseOnce sync.Once
 )
@@ -230,11 +258,15 @@ func initTemplate() {
 		if err != nil {
 			panic(err)
 		}
-		serviceCreateStructTmpl, err = template.New("serviceCreateStruct").Parse(handlerCreateStructTmplRaw)
+		serviceCreateStructTmpl, err = template.New("serviceCreateStruct").Parse(serviceCreateStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}
-		serviceUpdateStructTmpl, err = template.New("serviceUpdateStruct").Parse(handlerUpdateStructTmplRaw)
+		serviceUpdateStructTmpl, err = template.New("serviceUpdateStruct").Parse(serviceUpdateStructTmplRaw)
+		if err != nil {
+			panic(err)
+		}
+		serviceStructTmpl, err = template.New("serviceStruct").Parse(serviceStructTmplRaw)
 		if err != nil {
 			panic(err)
 		}

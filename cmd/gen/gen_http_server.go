@@ -31,13 +31,13 @@ func HTTPCommand() *cobra.Command {
 		Long: `generate http code.
 
 Examples:
-  # generate http code
+  # generate http code.
   goctl gen http --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # generate http code and embed 'gorm.model'
+  # generate http code and embed 'gorm.model'.
   goctl gen http --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
 
-  # generate http code and specify the output path
+  # generate http code and specify the output path, Note: if the file already exists in the path, it will replace the original file directly.
   goctl gen http --project-name=yourProjectName  --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
 
 `,
@@ -49,7 +49,7 @@ Examples:
 				return err
 			}
 
-			err = runGenHTTPCommand(projectName, GenTypeHTTP, codes, outPath)
+			err = runGenHTTPCommand(projectName, ModuleHTTP, sqlArgs.DBDsn, codes, outPath)
 			if err != nil {
 				return err
 			}
@@ -71,63 +71,86 @@ Examples:
 	return cmd
 }
 
-func runGenHTTPCommand(projectName string, genType string, codes map[string]string, outPath string) error {
-	r := templates.Replacers[genType]
+func runGenHTTPCommand(projectName string, moduleName string, dbDSN string, codes map[string]string, outPath string) error {
+	r := templates.Replacers[moduleName]
 	if r == nil {
 		return errors.New("replacer is nil")
 	}
 
 	// 设置模板信息
-	ignoreFiles := []string{"account_user_example.sql", "database.sql", "cpu1.png", "cpu2.png", "memory1.png", "memory2.png",
-		"metrics.jpg", "docs.go", "swagger.json", "swagger.yaml"} // 忽略处理的文件
-	fields := addHTTPFields(projectName, r, codes)
+	subDirs := []string{} // 只处理的子目录，如果为空或者没有指定的子目录，表示所有文件
+	ignoreDirs := []string{"sponge/api", "sponge/pkg",
+		"sponge/third_party", "internal/service", "sponge/test"} // 指定子目录下忽略处理的目录
+	ignoreFiles := []string{"swagger.json", "swagger.yaml", "protoc.sh",
+		"proto-doc.sh", "grpc.go", "grpc_option.go", "LICENSE", "doc.go",
+		"grpc_userExample.go", "grpc_systemCode.go", "proto.html"} // 指定子目录下忽略处理的文件
 
+	r.SetSubDirs(subDirs...)
+	r.SetIgnoreSubDirs(ignoreDirs...)
 	r.SetIgnoreFiles(ignoreFiles...)
+	fields := addHTTPFields(projectName, r, dbDSN, codes)
 	r.SetReplacementFields(fields)
-	_ = r.SetOutPath(outPath, "gen_"+genType)
+	_ = r.SetOutDir(outPath, "gen_"+moduleName)
 	if err := r.SaveFiles(); err != nil {
 		return err
 	}
 
-	fmt.Printf("generate '%s' code successfully, output = %s\n\n", genType, r.GetOutPath())
+	fmt.Printf("generate '%s' code successfully, output = %s\n\n", moduleName, r.GetOutPath())
 	return nil
 }
 
-func addHTTPFields(projectName string, r replacer.Replacer, codes map[string]string) []replacer.Field {
+func addHTTPFields(projectName string, r replacer.Replacer, dbDSN string, codes map[string]string) []replacer.Field {
 	var fields []replacer.Field
 
-	fields = append(fields, addTheDeleteFields(r, "model/userExample.go")...)
-	fields = append(fields, addTheDeleteFields(r, "dao/userExample.go")...)
-	fields = append(fields, addTheDeleteFields(r, "handler/userExample.go")...)
+	fields = append(fields, addTheDeleteFields(r, modelFile)...)
+	fields = append(fields, addTheDeleteFields(r, daoFile)...)
+	fields = append(fields, addTheDeleteFields(r, handlerFile)...)
+	fields = append(fields, addTheDeleteFields(r, mainFile)...)
+	fields = append(fields, addTheDeleteGrpcFields(r, mainFile)...)
 	fields = append(fields, []replacer.Field{
 		{ // 替换model/userExample.go文件内容
-			Old: "// todo generate model codes to here",
+			Old: modelFileMark,
 			New: codes[parser.CodeTypeModel],
 		},
 		{ // 替换dao/userExample.go文件内容
-			Old: "// todo generate the update fields code to here",
+			Old: daoFileMark,
 			New: codes[parser.CodeTypeDAO],
 		},
 		{ // 替换handler/userExample.go文件内容
-			Old: "// todo generate the request and response struct to here",
+			Old: handlerFileMark,
 			New: adjustmentOfIDType(codes[parser.CodeTypeHandler]),
 		},
+		{ // 替换main.go文件内容
+			Old: mainFileMark,
+			New: httpServerRegisterCode,
+		},
 		{
-			Old: "github.com/zhufuyi/goctl/templates/http_server",
+			Old: selfPackageName + "/" + r.GetBasePath(),
 			New: projectName,
 		},
 		{
-			Old: "projectExample",
+			Old: "github.com/zhufuyi/sponge",
 			New: projectName,
+		},
+		{
+			Old: projectName + "/pkg",
+			New: "github.com/zhufuyi/sponge/pkg",
+		},
+		{
+			Old: "sponge api docs",
+			New: projectName + " api docs",
+		},
+		{
+			Old: `"sponge"`,
+			New: "\"" + projectName + "\"",
 		},
 		{
 			Old: "userExampleNO = 1",
 			New: fmt.Sprintf("userExampleNO = %d", rand.Intn(1000)),
 		},
 		{
-			Old:             "UserExample",
-			New:             codes[parser.TableName],
-			IsCaseSensitive: true,
+			Old: "name: \"userExample\"",
+			New: "name: " + "\"" + projectName + "\"",
 		},
 		{
 			Old: "go.mod.bak",
@@ -136,6 +159,15 @@ func addHTTPFields(projectName string, r replacer.Replacer, codes map[string]str
 		{
 			Old: "go.sum.bak",
 			New: "go.sum",
+		},
+		{
+			Old: "root:123456@(192.168.3.37:3306)/account",
+			New: dbDSN,
+		},
+		{
+			Old:             "UserExample",
+			New:             codes[parser.TableName],
+			IsCaseSensitive: true,
 		},
 	}...)
 

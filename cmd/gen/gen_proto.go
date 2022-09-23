@@ -3,6 +3,7 @@ package gen
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/zhufuyi/goctl/pkg/replacer"
 	"github.com/zhufuyi/goctl/pkg/sql2code"
@@ -10,6 +11,7 @@ import (
 	"github.com/zhufuyi/goctl/templates"
 
 	"github.com/spf13/cobra"
+	"github.com/zhufuyi/pkg/gofile"
 )
 
 // ProtoCommand generate protobuf code
@@ -28,10 +30,14 @@ func ProtoCommand() *cobra.Command {
 
 Examples:
   # generate protobuf code.
-  goctl gen proto --project-name=yourProjectName --server-name=yourServerName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
+  goctl gen proto --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
   # generate protobuf code and specify the output directory, Note: if the file already exists in the path, it will replace the original file directly.
-  goctl gen proto --project-name=yourProjectName --server-name=yourServerName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
+  goctl gen proto --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
+
+  # generate protobuf code and specify the service name, Note: If there are multiple services in one project, you need to specify the service name, 
+  # the default is that the server name equals the project name.
+  goctl gen proto --project-name=yourProjectName --server-name=yourServerName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
 `,
 		SilenceErrors: true,
@@ -51,15 +57,14 @@ Examples:
 		},
 	}
 
+	cmd.Flags().StringVarP(&projectName, "project-name", "p", "", "project name")
+	_ = cmd.MarkFlagRequired("project-name")
+	cmd.Flags().StringVarP(&serverName, "server-name", "s", "", "server name, if it is empty, the server name equals the project name")
+
 	cmd.Flags().StringVarP(&sqlArgs.DBDsn, "db-dsn", "d", "", "db content addr, E.g. user:password@(host:port)/database")
 	_ = cmd.MarkFlagRequired("db-dsn")
 	cmd.Flags().StringVarP(&sqlArgs.DBTable, "db-table", "t", "", "table name")
 	_ = cmd.MarkFlagRequired("db-table")
-
-	cmd.Flags().StringVarP(&projectName, "project-name", "p", "", "project name")
-	_ = cmd.MarkFlagRequired("project-name")
-	cmd.Flags().StringVarP(&serverName, "server-name", "s", "", "server name")
-	_ = cmd.MarkFlagRequired("server-name")
 
 	cmd.Flags().StringVarP(&outPath, "out", "o", "", "export the code path")
 
@@ -70,6 +75,10 @@ func runGenProtoCommand(projectName string, serverName string, moduleName string
 	r := templates.Replacers[moduleName]
 	if r == nil {
 		return errors.New("replacer is nil")
+	}
+
+	if serverName == "" {
+		serverName = projectName
 	}
 
 	// 设置模板信息
@@ -105,13 +114,18 @@ func addProtoFields(projectName string, serverName string, r replacer.Replacer, 
 			Old: "github.com/zhufuyi/sponge",
 			New: projectName,
 		},
+		// 替换目录名称
+		{
+			Old: strings.Join([]string{"api", "userExample", "v1"}, gofile.GetPathDelimiter()),
+			New: strings.Join([]string{"api", serverName, "v1"}, gofile.GetPathDelimiter()),
+		},
 		{
 			Old: "api/userExample/v1",
 			New: fmt.Sprintf("api/%s/v1", serverName),
 		},
 		{
 			Old: "api.userExample.v1",
-			New: fmt.Sprintf("api.%s.v1", serverName),
+			New: fmt.Sprintf("api.%s.v1", strings.ReplaceAll(serverName, "-", "")), // proto package 不能存在"-"号
 		},
 		{
 			Old:             "UserExample",

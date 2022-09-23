@@ -4,17 +4,16 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"go/format"
-	"sort"
-	"strings"
-	"text/template"
-
 	"github.com/blastrain/vitess-sqlparser/tidbparser/ast"
 	"github.com/blastrain/vitess-sqlparser/tidbparser/dependency/mysql"
 	"github.com/blastrain/vitess-sqlparser/tidbparser/dependency/types"
 	"github.com/blastrain/vitess-sqlparser/tidbparser/parser"
 	"github.com/huandu/xstrings"
 	"github.com/jinzhu/inflection"
+	"go/format"
+	"sort"
+	"strings"
+	"text/template"
 )
 
 const (
@@ -30,6 +29,8 @@ const (
 	CodeTypeHandler = "handler"
 	// CodeTypeProto proto file code
 	CodeTypeProto = "proto"
+	// CodeTypeService grpc service code
+	CodeTypeService = "service"
 )
 
 // Codes 生成的代码
@@ -60,6 +61,7 @@ func ParseSQL(sql string, options ...Option) (map[string]string, error) {
 	updateFieldsCodes := make([]string, 0, len(stmts))
 	handlerStructCodes := make([]string, 0, len(stmts))
 	protoFileCodes := make([]string, 0, len(stmts))
+	serviceStructCodes := make([]string, 0, len(stmts))
 	modelJSONCodes := make([]string, 0, len(stmts))
 	importPath := make(map[string]struct{})
 	tableNames := make([]string, 0, len(stmts))
@@ -73,6 +75,7 @@ func ParseSQL(sql string, options ...Option) (map[string]string, error) {
 			updateFieldsCodes = append(updateFieldsCodes, code.updateFields)
 			handlerStructCodes = append(handlerStructCodes, code.handlerStruct)
 			protoFileCodes = append(protoFileCodes, code.protoFile)
+			serviceStructCodes = append(serviceStructCodes, code.serviceStruct)
 			modelJSONCodes = append(modelJSONCodes, code.modelJSON)
 			tableNames = append(tableNames, toCamel(ct.Table.Name.String()))
 			for _, s := range code.importPaths {
@@ -103,6 +106,7 @@ func ParseSQL(sql string, options ...Option) (map[string]string, error) {
 		CodeTypeDAO:     strings.Join(updateFieldsCodes, "\n\n"),
 		CodeTypeHandler: strings.Join(handlerStructCodes, "\n\n"),
 		CodeTypeProto:   strings.Join(protoFileCodes, "\n\n"),
+		CodeTypeService: strings.Join(serviceStructCodes, "\n\n"),
 		TableName:       strings.Join(tableNames, ", "),
 	}
 
@@ -162,6 +166,20 @@ func (t tmplField) GoZero() string {
 	return `= ` + t.GoType
 }
 
+// GoTypeZero type of 0 逗号分隔
+func (t tmplField) GoTypeZero() string {
+	switch t.GoType {
+	case "int8", "int16", "int32", "int64", "int", "uint8", "uint16", "uint32", "uint64", "uint", "float64", "float32": //nolint
+		return `0`
+	case "string": //nolint
+		return `""`
+	case "time.Time": //nolint
+		return `0 /*time.Now().Second()*/`
+	}
+
+	return t.GoType
+}
+
 // AddOne 加一
 func (t tmplField) AddOne(i int) int {
 	return i + 1
@@ -212,6 +230,7 @@ type codeText struct {
 	updateFields  string
 	handlerStruct string
 	protoFile     string
+	serviceStruct string
 }
 
 // nolint
@@ -358,7 +377,11 @@ func makeCode(stmt *ast.CreateTableStmt, opt options) (*codeText, error) {
 		return nil, err
 	}
 
-	//return modelStructCode, importPaths, nil
+	serviceStructCode, err := getServiceStructCode(data)
+	if err != nil {
+		return nil, err
+	}
+
 	return &codeText{
 		importPaths:   importPaths,
 		modelStruct:   modelStructCode,
@@ -366,6 +389,7 @@ func makeCode(stmt *ast.CreateTableStmt, opt options) (*codeText, error) {
 		updateFields:  updateFieldsCode,
 		handlerStruct: handlerStructCode,
 		protoFile:     protoFileCode,
+		serviceStruct: serviceStructCode,
 	}, nil
 }
 
@@ -406,7 +430,7 @@ func getModelStructCode(data tmplData, importPaths []string, isEmbed bool) (stri
 				newImportPaths = append(newImportPaths, path)
 			}
 		}
-		newImportPaths = append(newImportPaths, "github.com/zhufuyi/pkg/mysql")
+		newImportPaths = append(newImportPaths, "github.com/zhufuyi/sponge/pkg/mysql")
 	} else {
 		newImportPaths = importPaths
 	}
@@ -510,13 +534,6 @@ func tmplExecuteWithFilter(data tmplData, tmpl *template.Template, reservedColum
 		return "", fmt.Errorf("tmpl.Execute error: %v", err)
 	}
 	return builder.String(), nil
-
-	//code, err := format.Source([]byte(builder.String()))
-	//if err != nil {
-	//	return "", fmt.Errorf("format.Source error: %v", err)
-	//}
-	//
-	//return string(code), nil
 }
 
 func getModelJSONCode(data tmplData) (string, error) {
@@ -565,6 +582,32 @@ func getProtoFileCode(data tmplData) (string, error) {
 	code = strings.ReplaceAll(code, "// protoMessageCreateCode", protoMessageCreateCode)
 	code = strings.ReplaceAll(code, "// protoMessageUpdateCode", protoMessageUpdateCode)
 	code = strings.ReplaceAll(code, "// protoMessageDetailCode", protoMessageDetailCode)
+
+	return code, nil
+}
+
+func getServiceStructCode(data tmplData) (string, error) {
+	builder := strings.Builder{}
+	err := serviceStructTmpl.Execute(&builder, data)
+	if err != nil {
+		return "", err
+	}
+	code := builder.String()
+
+	serviceCreateStructCode, err := tmplExecuteWithFilter(data, serviceCreateStructTmpl)
+	if err != nil {
+		return "", fmt.Errorf("handlerCreateStructTmpl error: %v", err)
+	}
+	serviceCreateStructCode = strings.ReplaceAll(serviceCreateStructCode, "ID:", "Id:")
+
+	serviceUpdateStructCode, err := tmplExecuteWithFilter(data, serviceUpdateStructTmpl, columnID)
+	if err != nil {
+		return "", fmt.Errorf("handlerCreateStructTmpl error: %v", err)
+	}
+	serviceUpdateStructCode = strings.ReplaceAll(serviceUpdateStructCode, "ID:", "Id:")
+
+	code = strings.ReplaceAll(code, "// serviceCreateStructCode", serviceCreateStructCode)
+	code = strings.ReplaceAll(code, "// serviceUpdateStructCode", serviceUpdateStructCode)
 
 	return code, nil
 }

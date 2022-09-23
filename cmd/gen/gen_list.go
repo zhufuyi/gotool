@@ -8,38 +8,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	// GenTypeModel model 类型
-	GenTypeModel = "model"
-
-	// GenTypeDao dao 类型
-	GenTypeDao = "dao"
-
-	// GenTypeHandler handler 类型
-	GenTypeHandler = "handler"
-
-	// GenTypeHTTP http 类型
-	GenTypeHTTP = "http"
-)
-
-var genTypes = []string{GenTypeModel, GenTypeDao, GenTypeHandler, GenTypeHTTP}
-
-// ListTypesCommand show generate support types
-func ListTypesCommand() *cobra.Command {
+// ListModulesCommand show generate support module types
+func ListModulesCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
-		Short: "List generate types",
-		Long: `list generate types.
+		Short: "List generate module types",
+		Long: `list generate module types.
 
 Examples:
-  # show generate types
+  # show generate module types
   goctl gen list
 
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(utils.ListTypeNames(genTypes...))
+			fmt.Println(utils.ListTypeNames(allModules...))
 			return nil
 		},
 	}

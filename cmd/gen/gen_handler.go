@@ -31,13 +31,13 @@ func HandlerCommand() *cobra.Command {
 		Long: `generate handler code.
 
 Examples:
-  # generate handler code
+  # generate handler code.
   goctl gen handler --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # generate handler code and embed 'gorm.model'
+  # generate handler code and embed 'gorm.model'.
   goctl gen handler --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
 
-  # generate handler code and specify the output path
+  # generate handler code and specify the output path, Note: if the file already exists in the path, it will replace the original file directly.
   goctl gen handler --project-name=yourProjectName  --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
 
 `,
@@ -49,7 +49,7 @@ Examples:
 				return err
 			}
 
-			err = runGenHandlerCommand(projectName, GenTypeHandler, codes, outPath)
+			err = runGenHandlerCommand(projectName, ModuleHandler, codes, outPath)
 			if err != nil {
 				return err
 			}
@@ -71,57 +71,67 @@ Examples:
 	return cmd
 }
 
-func runGenHandlerCommand(projectName string, genType string, codes map[string]string, outPath string) error {
-	r := templates.Replacers[genType]
+func runGenHandlerCommand(projectName string, moduleName string, codes map[string]string, outPath string) error {
+	r := templates.Replacers[moduleName]
 	if r == nil {
 		return errors.New("replacer is nil")
 	}
 
 	// 设置模板信息
-	ignoreFiles := []string{"conf.go", "conf.yml", "conf_test.go", "init.go", "docs.go", "routers.go", "systemCode.go", "swagger.go"} // 忽略处理的文件
-	fields := addHandlerFields(projectName, r, codes)
+	subDirs := []string{"internal/model", "internal/cache", "internal/dao",
+		"internal/ecode", "internal/handler", "internal/routers"} // 只处理的指定子目录，如果为空或者没有指定的子目录，表示所有文件
+	ignoreDirs := []string{} // 指定子目录下忽略处理的目录
+	ignoreFiles := []string{"init.go", "swagger_types.go", "http_systemCode.go",
+		"grpc_systemCode.go", "grpc_userExample.go", "routers.go"} // 指定子目录下忽略处理的文件
 
+	r.SetSubDirs(subDirs...)
+	r.SetIgnoreSubDirs(ignoreDirs...)
 	r.SetIgnoreFiles(ignoreFiles...)
+	fields := addHandlerFields(projectName, r, codes)
 	r.SetReplacementFields(fields)
-	_ = r.SetOutPath(outPath, "gen_"+genType)
+	_ = r.SetOutDir(outPath, "gen_"+moduleName)
 	if err := r.SaveFiles(); err != nil {
 		return err
 	}
 
-	fmt.Printf("generate '%s' code successfully, output = %s\n\n", genType, r.GetOutPath())
+	fmt.Printf("generate '%s' code successfully, output = %s\n\n", moduleName, r.GetOutPath())
 	return nil
 }
 
 func addHandlerFields(projectName string, r replacer.Replacer, codes map[string]string) []replacer.Field {
 	var fields []replacer.Field
 
-	fields = append(fields, addTheDeleteFields(r, "model/userExample.go")...)
-	fields = append(fields, addTheDeleteFields(r, "dao/userExample.go")...)
-	fields = append(fields, addTheDeleteFields(r, "handler/userExample.go")...)
+	fields = append(fields, addTheDeleteFields(r, modelFile)...)
+	fields = append(fields, addTheDeleteFields(r, daoFile)...)
+	fields = append(fields, addTheDeleteFields(r, handlerFile)...)
 	fields = append(fields, []replacer.Field{
 		{ // 替换model/userExample.go文件内容
-			Old: "// todo generate model codes to here",
+			Old: modelFileMark,
 			New: codes[parser.CodeTypeModel],
 		},
 		{ // 替换dao/userExample.go文件内容
-			Old: "// todo generate the update fields code to here",
+			Old: daoFileMark,
 			New: codes[parser.CodeTypeDAO],
 		},
 		{ // 替换handler/userExample.go文件内容
-			Old: "// todo generate the request and response struct to here",
+			Old: handlerFileMark,
 			New: adjustmentOfIDType(codes[parser.CodeTypeHandler]),
 		},
 		{
-			Old: "github.com/zhufuyi/goctl/templates/handler",
+			Old: selfPackageName + "/" + r.GetBasePath(),
 			New: projectName,
 		},
 		{
-			Old: "projectExample",
+			Old: "github.com/zhufuyi/sponge",
 			New: projectName,
 		},
 		{
 			Old: "userExampleNO = 1",
 			New: fmt.Sprintf("userExampleNO = %d", rand.Intn(1000)),
+		},
+		{
+			Old: projectName + "/pkg",
+			New: "github.com/zhufuyi/sponge/pkg",
 		},
 		{
 			Old:             "UserExample",

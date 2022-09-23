@@ -30,16 +30,16 @@ func ModelCommand() *cobra.Command {
 		Long: `generate model code.
 
 Examples:
-  # generate model code
+  # generate model code.
   goctl gen model --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # generate model code and content mysql code
-  goctl gen model --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --project-name=yourProjectName
-
-  # generate model code and embed 'gorm.Model''
+  # generate model code and embed 'gorm.Model''.
   goctl gen model --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
 
-  # generate model code and specify the output directory
+  # generate model code and content mysql code.
+  goctl gen model --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --project-name=yourProjectName
+
+  # generate model code and specify the output directory, Note: if the file already exists in the path, it will replace the original file directly.
   goctl gen model --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
 
 `,
@@ -51,7 +51,7 @@ Examples:
 				return err
 			}
 
-			err = runGenModelCommand(projectName, GenTypeModel, codes, outPath)
+			err = runGenModelCommand(projectName, ModuleModel, codes, outPath)
 			if err != nil {
 				return err
 			}
@@ -72,37 +72,41 @@ Examples:
 	return cmd
 }
 
-func runGenModelCommand(projectName string, genType string, codes map[string]string, outPath string) error {
-	r := templates.Replacers[genType]
+func runGenModelCommand(projectName string, moduleName string, codes map[string]string, outPath string) error {
+	r := templates.Replacers[moduleName]
 	if r == nil {
 		return errors.New("replacer is nil")
 	}
 
 	// 设置模板信息
-	ignoreFiles := []string{"conf.go", "conf.yml", "conf_test.go"} // 忽略处理的文件
+	subDirs := []string{"internal/model"} // 只处理的指定子目录，如果为空或者没有指定的子目录，表示所有文件
+	ignoreDirs := []string{}              // 指定子目录下忽略处理的目录
+	ignoreFiles := []string{}             // 指定子目录下忽略处理的文件
 	if projectName == "" {
 		ignoreFiles = append(ignoreFiles, "init.go")
 	}
-	fields := addModelFields(projectName, r, codes)
 
+	r.SetSubDirs(subDirs...)
+	r.SetIgnoreSubDirs(ignoreDirs...)
 	r.SetIgnoreFiles(ignoreFiles...)
+	fields := addModelFields(projectName, r, codes)
 	r.SetReplacementFields(fields)
-	_ = r.SetOutPath(outPath, "gen_"+genType)
+	_ = r.SetOutDir(outPath, "gen_"+moduleName)
 	if err := r.SaveFiles(); err != nil {
 		return err
 	}
 
-	fmt.Printf("generate '%s' code successfully, output = %s\n\n", genType, r.GetOutPath())
+	fmt.Printf("generate '%s' code successfully, output = %s\n\n", moduleName, r.GetOutPath())
 	return nil
 }
 
 func addModelFields(projectName string, r replacer.Replacer, codes map[string]string) []replacer.Field {
 	var fields []replacer.Field
 
-	fields = append(fields, addTheDeleteFields(r, "model/userExample.go")...)
+	fields = append(fields, addTheDeleteFields(r, modelFile)...)
 	fields = append(fields, []replacer.Field{
 		{ // 替换model/userExample.go文件内容
-			Old: "// todo generate model codes to here",
+			Old: modelFileMark,
 			New: codes[parser.CodeTypeModel],
 		},
 		{
@@ -115,12 +119,16 @@ func addModelFields(projectName string, r replacer.Replacer, codes map[string]st
 	if projectName != "" {
 		fields = append(fields, []replacer.Field{
 			{
-				Old: "github.com/zhufuyi/goctl/templates/model",
+				Old: selfPackageName + "/" + r.GetBasePath(),
 				New: projectName,
 			},
 			{
-				Old: "projectExample",
+				Old: "github.com/zhufuyi/sponge",
 				New: projectName,
+			},
+			{
+				Old: projectName + "/pkg",
+				New: "github.com/zhufuyi/sponge/pkg",
 			},
 		}...)
 	}

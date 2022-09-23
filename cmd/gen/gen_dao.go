@@ -31,13 +31,13 @@ func DaoCommand() *cobra.Command {
 		Long: `generate dao code.
 
 Examples:
-  # generate dao code
+  # generate dao code.
   goctl gen dao --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # generate dao code and embed 'gorm.model'
+  # generate dao code and embed 'gorm.model'.
   goctl gen dao --project-name=yourProjectName --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
 
-  # generate dao code and specify the output path
+  # generate dao code and specify the output path, Note: if the file already exists in the path, it will replace the original file directly.
   goctl gen dao --project-name=yourProjectName  --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --out=/tmp
 
 `,
@@ -49,7 +49,7 @@ Examples:
 				return err
 			}
 
-			err = runGenDaoCommand(projectName, GenTypeDao, codes, outPath)
+			err = runGenDaoCommand(projectName, ModuleDao, codes, outPath)
 			if err != nil {
 				return err
 			}
@@ -71,48 +71,56 @@ Examples:
 	return cmd
 }
 
-func runGenDaoCommand(projectName string, genType string, codes map[string]string, outPath string) error {
-	r := templates.Replacers[genType]
+func runGenDaoCommand(projectName string, moduleName string, codes map[string]string, outPath string) error {
+	r := templates.Replacers[moduleName]
 	if r == nil {
 		return errors.New("r is nil")
 	}
 
 	// 设置模板信息
-	ignoreFiles := []string{"conf.go", "conf.yml", "conf_test.go", "init.go"} // 忽略处理的文件
-	fields := addDAOFields(projectName, r, codes)
+	subDirs := []string{"internal/model", "internal/cache", "internal/dao"} // 只处理的指定子目录，如果为空或者没有指定的子目录，表示所有文件
+	ignoreDirs := []string{}                                                // 指定子目录下忽略处理的目录
+	ignoreFiles := []string{"init.go"}                                      // 指定子目录下忽略处理的文件
 
+	r.SetSubDirs(subDirs...)
+	r.SetIgnoreSubDirs(ignoreDirs...)
 	r.SetIgnoreFiles(ignoreFiles...)
+	fields := addDAOFields(projectName, r, codes)
 	r.SetReplacementFields(fields)
-	_ = r.SetOutPath(outPath, "gen_"+genType)
+	_ = r.SetOutDir(outPath, "gen_"+moduleName)
 	if err := r.SaveFiles(); err != nil {
 		return err
 	}
 
-	fmt.Printf("generate '%s' code successfully, output = %s\n\n", genType, r.GetOutPath())
+	fmt.Printf("generate '%s' code successfully, output = %s\n\n", moduleName, r.GetOutPath())
 	return nil
 }
 
 func addDAOFields(projectName string, r replacer.Replacer, codes map[string]string) []replacer.Field {
 	var fields []replacer.Field
 
-	fields = append(fields, addTheDeleteFields(r, "model/userExample.go")...)
-	fields = append(fields, addTheDeleteFields(r, "dao/userExample.go")...)
+	fields = append(fields, addTheDeleteFields(r, modelFile)...)
+	fields = append(fields, addTheDeleteFields(r, daoFile)...)
 	fields = append(fields, []replacer.Field{
 		{ // 替换model/userExample.go文件内容
-			Old: "// todo generate model codes to here",
+			Old: modelFileMark,
 			New: codes[parser.CodeTypeModel],
 		},
 		{ // 替换dao/userExample.go文件内容
-			Old: "// todo generate the update fields code to here",
+			Old: daoFileMark,
 			New: codes[parser.CodeTypeDAO],
 		},
 		{
-			Old: "github.com/zhufuyi/goctl/templates/dao",
+			Old: selfPackageName + "/" + r.GetBasePath(),
 			New: projectName,
 		},
 		{
-			Old: "projectExample",
+			Old: "github.com/zhufuyi/sponge",
 			New: projectName,
+		},
+		{
+			Old: projectName + "/pkg",
+			New: "github.com/zhufuyi/sponge/pkg",
 		},
 		{
 			Old:             "UserExample",
