@@ -12,53 +12,32 @@ import (
 	"github.com/zhufuyi/goctl/templates"
 )
 
-// model模板目录
+// 微服务模板目录
 //
-//go:embed templates/model
-var modelFS embed.FS
-
-// dao模板目录
-//
-//go:embed templates/dao
-var daoFS embed.FS
-
-// handler模板目录
-//
-//go:embed templates/handler
-var handlerFS embed.FS
+//go:embed templates/sponge
+var microServiceFS embed.FS
 
 // http服务模板目录
 //
-//go:embed templates/http_server
-var httpFS embed.FS
+////go:embed templates/http_server
+//var httpFS embed.FS
 
 func main() {
 	// 初始化模板文件
-	templates.Init([]templates.Template{
-		{
-			Name:     gen.GenTypeModel,
-			FS:       modelFS,
-			FilePath: "templates/model",
-		},
-		{
-			Name:     gen.GenTypeDao,
-			FS:       daoFS,
-			FilePath: "templates/dao",
-		},
-		{
-			Name:     gen.GenTypeHandler,
-			FS:       handlerFS,
-			FilePath: "templates/handler",
-		},
-		{
-			Name:     gen.GenTypeHTTP,
-			FS:       httpFS,
-			FilePath: "templates/http_server",
-		},
-	})
+	templates.Init(&templates.Template{
+		Name:     gen.ModuleSponge,
+		FS:       microServiceFS,
+		FilePath: "templates/sponge",
+	}, gen.MicroServiceGroupModules)
+
+	//templates.Init(&templates.Template{
+	//	Name:     gen.ModuleHTTP,
+	//	FS:       httpFS,
+	//	FilePath: "templates/http_server",
+	//}, gen.MicroServiceGroupModules)
 
 	rand.Seed(time.Now().UnixNano())
-	
+
 	rootCMD := cmd.NewRootCMD()
 	if err := rootCMD.Execute(); err != nil {
 		rootCMD.PrintErrln("Error:", err)
