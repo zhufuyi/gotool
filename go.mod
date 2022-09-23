@@ -22,7 +22,7 @@ require (
 	github.com/swaggo/files v0.0.0-20220728132757-551d4a08d97a
 	github.com/swaggo/gin-swagger v1.5.2
 	github.com/swaggo/swag v1.8.5
-	github.com/zhufuyi/pkg v1.3.2
+	github.com/zhufuyi/pkg v1.3.5
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 	gopkg.in/yaml.v3 v3.0.1

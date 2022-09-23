@@ -74,7 +74,7 @@ func runReplaceCommand(srcPath string, oldValues []string, newValues []string) e
 
 	r.SetIgnoreFiles(templateIgnoreFiles...)
 	r.SetReplacementFields(fields)
-	if err = r.SetOutPath("", "replace"); err != nil {
+	if err = r.SetOutDir("", "replace"); err != nil {
 		return err
 	}
 	if err = r.SaveFiles(); err != nil {

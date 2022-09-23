@@ -153,7 +153,7 @@ func (r *replacerInfo) SetOutDir(absPath string, name ...string) error {
 			return err
 		}
 
-		r.outPath = abs + gofile.GetPathDelimiter() + subPath
+		r.outPath = abs /*+ gofile.GetPathDelimiter() + subPath*/
 		return nil
 	}
 
@@ -220,13 +220,24 @@ func (r *replacerInfo) SaveFiles() error {
 		// 获取新文件路径
 		newFilePath := r.getNewFilePath(file)
 		dir, filename := filepath.Split(newFilePath)
-		// 替换文件名
+		// 替换文件名和文件夹名
 		for _, field := range r.replacementFields {
-			tmp := dir + strings.ReplaceAll(filename, field.Old, field.New)
-			if newFilePath != tmp {
-				newFilePath = tmp
-				break
+			if strings.Contains(dir, field.Old) {
+				dir = strings.ReplaceAll(dir, field.Old, field.New)
 			}
+			if strings.Contains(filename, field.Old) {
+				filename = strings.ReplaceAll(filename, field.Old, field.New)
+			}
+
+			if newFilePath != dir+filename {
+				newFilePath = dir + filename
+			}
+
+			//tmp := strings.ReplaceAll(dir, field.Old, field.New) + strings.ReplaceAll(filename, field.Old, field.New)
+			//if newFilePath != tmp {
+			//	newFilePath = tmp
+			//	break
+			//}
 		}
 
 		// 保存文件

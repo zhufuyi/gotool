@@ -436,6 +436,8 @@ github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 h1:k/gmLsJDWwWqbLC
 github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9/go.mod h1:E1AXubJBdNmFERAOucpDIxNzeGfLzg0mYh+UfMWdChA=
 github.com/zhufuyi/pkg v1.3.2 h1:NLnKUy+/avn9oz6SavRFbqIBR7HKgQzUA9jrUcMm7ww=
 github.com/zhufuyi/pkg v1.3.2/go.mod h1:roi5tJT9lhdFYOHzRaDq3s/vcQ+KNCZ9ejVFuKS9GC0=
+github.com/zhufuyi/pkg v1.3.5 h1:taOmTyjTRsmuEcV0PkRZ1MfzN0mxmGYp2JR+R/BiA1Q=
+github.com/zhufuyi/pkg v1.3.5/go.mod h1:dcLCg2+FugXYve+K9mkmRtJzuW/5m4Aemqpe2vd5ptY=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=

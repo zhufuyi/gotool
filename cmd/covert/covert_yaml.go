@@ -2,13 +2,13 @@ package covert
 
 import (
 	"fmt"
-	"github.com/zhufuyi/pkg/gofile"
 	"os"
 	"path/filepath"
 
 	"github.com/zhufuyi/goctl/pkg/jy2struct"
 
 	"github.com/spf13/cobra"
+	"github.com/zhufuyi/pkg/gofile"
 )
 
 // Yaml2StructCommand covert yaml to struct command
@@ -94,8 +94,8 @@ func Init(configFile string, fs ...func()) error {
 	return conf.Parse(configFile, config, fs...)
 }
 
-func Show() {
-	conf.Show(config)
+func Show() string {
+	return conf.Show(config)
 }
 
 func Get() *Config {
