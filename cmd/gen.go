@@ -28,6 +28,8 @@ Examples:
 		gen.HandlerCommand(),
 		gen.HTTPCommand(),
 		gen.ProtoCommand(),
+		gen.ServiceCommand(),
+		gen.GRPCCommand(),
 	)
 
 	return cmd
