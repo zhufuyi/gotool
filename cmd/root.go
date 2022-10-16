@@ -18,7 +18,6 @@ func NewRootCMD() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		genCodesCommand(),
 		replaceCommand(),
 		convertCommand(),
 	)

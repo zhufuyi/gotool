@@ -30,8 +30,8 @@ Examples:
   # covert mysql table gorm model code
   goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
-  # covert mysql table to gorm model code and embed gorm.Model
-  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embedded
+  # covert mysql table, structure fields correspond to the column names of the table.
+  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embed=false
 
   # covert mysql table to handler request and respond struct code,  other type json or dao
   goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --code-type=handler
@@ -61,7 +61,7 @@ Examples:
 	cmd.Flags().StringVarP(&sqlArgs.Package, "pkg-name", "p", "", "package name")
 	cmd.Flags().StringVarP(&sqlArgs.CodeType, "code-type", "c", "model", "specify the use of the generated code, support 4 types, model(default), json, dao, handler")
 	cmd.Flags().BoolVarP(&sqlArgs.JSONTag, "json-tag", "j", false, "whether to generate json tag")
-	cmd.Flags().BoolVarP(&sqlArgs.IsEmbed, "embedded", "e", false, "whether to embed 'gorm.Model'")
+	cmd.Flags().BoolVarP(&sqlArgs.IsEmbed, "embed", "e", true, "whether to embed 'gorm.Model' struct")
 	cmd.Flags().IntVarP(&sqlArgs.JSONNamedType, "json-named-type", "J", 0, "json named type, 0:snake_case, other:camelCase")
 
 	return cmd

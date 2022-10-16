@@ -11,18 +11,12 @@ func convertCommand() *cobra.Command {
 		Use:   "covert <type>",
 		Short: "covert resources",
 		Long: `Covert resources.
-
-Examples:
-  # show covert resource types
-  goctl covert list
-
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
 
 	cmd.AddCommand(
-		covert.ListTypesCommand(),
 		covert.SQL2GormCommand(),
 		covert.JSON2StructCommand(),
 		covert.Yaml2StructCommand(),

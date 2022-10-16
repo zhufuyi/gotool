@@ -432,6 +432,11 @@ func getModelStructCode(data tmplData, importPaths []string, isEmbed bool) (stri
 		}
 		newImportPaths = append(newImportPaths, "github.com/zhufuyi/sponge/pkg/mysql")
 	} else {
+		for i, field := range data.Fields {
+			if strings.Contains(field.GoType, "time.Time") {
+				data.Fields[i].GoType = "*time.Time"
+			}
+		}
 		newImportPaths = importPaths
 	}
 
@@ -474,9 +479,9 @@ func getUpdateFieldsCode(data tmplData, isEmbed bool) (string, error) {
 	var newFields = []tmplField{}
 	for _, field := range data.Fields {
 		falseColumns := []string{}
-		if !isEmbed {
-			falseColumns = append(falseColumns, columnCreatedAt, columnUpdatedAt, columnDeletedAt)
-		}
+		//if !isEmbed {
+		//falseColumns = append(falseColumns, columnCreatedAt, columnUpdatedAt, columnDeletedAt)
+		//}
 		if isIgnoreFields(field.ColName, falseColumns...) {
 			continue
 		}
@@ -582,6 +587,8 @@ func getProtoFileCode(data tmplData) (string, error) {
 	code = strings.ReplaceAll(code, "// protoMessageCreateCode", protoMessageCreateCode)
 	code = strings.ReplaceAll(code, "// protoMessageUpdateCode", protoMessageUpdateCode)
 	code = strings.ReplaceAll(code, "// protoMessageDetailCode", protoMessageDetailCode)
+	code = strings.ReplaceAll(code, "*time.Time", "int64")
+	code = strings.ReplaceAll(code, "time.Time", "int64")
 
 	return code, nil
 }

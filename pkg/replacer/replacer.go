@@ -153,7 +153,7 @@ func (r *replacerInfo) SetOutDir(absPath string, name ...string) error {
 			return err
 		}
 
-		r.outPath = abs /*+ gofile.GetPathDelimiter() + subPath*/
+		r.outPath = abs
 		return nil
 	}
 
@@ -175,7 +175,7 @@ func (r *replacerInfo) GetBasePath() string {
 func (r *replacerInfo) ReadFile(filename string) ([]byte, error) {
 	var foundFile = []string{}
 	for _, file := range r.files {
-		if strings.Contains(file, filename) {
+		if strings.Contains(file, filename) && gofile.GetFilename(file) == gofile.GetFilename(filename) {
 			foundFile = append(foundFile, file)
 		}
 	}

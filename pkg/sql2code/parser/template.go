@@ -86,12 +86,12 @@ type Get{{.TableName}}ByIDRespond struct {
 	protoFileTmpl    *template.Template
 	protoFileTmplRaw = `syntax = "proto3";
 
-package api.userExample.v1;
+package api.serverNameExample.v1;
 
 import "api/types/types.proto";
 // import "validate/validate.proto";
 
-option go_package = "github.com/zhufuyi/sponge/api/userExample/v1;v1";
+option go_package = "github.com/zhufuyi/sponge/api/serverNameExample/v1;v1";
 
 service {{.TName}}Service {
   rpc Create(Create{{.TableName}}Request) returns (Create{{.TableName}}Reply) {}

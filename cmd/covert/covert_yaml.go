@@ -11,6 +11,8 @@ import (
 	"github.com/zhufuyi/pkg/gofile"
 )
 
+const covertTypeYaml2Struct = "yaml"
+
 // Yaml2StructCommand covert yaml to struct command
 func Yaml2StructCommand() *cobra.Command {
 	var (
@@ -25,14 +27,8 @@ func Yaml2StructCommand() *cobra.Command {
 		Long: `covert yaml to struct.
 
 Examples:
-  # covert yaml to struct from data
-  goctl covert yaml --data="yaml text"
-
   # covert yaml to struct from file
   goctl covert yaml --file=test.yaml
-
-  # covert yaml to struct, set tag value and subStruct flag
-  goctl covert yaml --file=test.yaml --tags=gorm --sub-struct=false
 
   # covert yaml to struct, set tag value, save to specified directory, file name is config.go
   goctl covert yaml --file=test.yaml --tags=json --out=/tmp
@@ -55,10 +51,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVarP(&ysArgs.Data, "data", "d", "", "yaml data")
 	cmd.Flags().StringVarP(&ysArgs.InputFile, "file", "f", "", "yaml file")
-	cmd.Flags().StringVarP(&ysArgs.Tags, "tags", "t", "", "specify tags in addition to the format, with multiple tags separated by commas")
-	cmd.Flags().BoolVarP(&ysArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
 	cmd.Flags().StringVarP(&outPath, "out", "o", "", "export the code path")
 	return cmd
 }
@@ -88,7 +81,6 @@ type Config = GenerateName
 
 var config *Config
 
-// Init parsing configuration files to struct, including yaml, toml, json, etc.
 func Init(configFile string, fs ...func()) error {
 	config = &Config{}
 	return conf.Parse(configFile, config, fs...)
@@ -103,5 +95,4 @@ func Get() *Config {
 		panic("config is nil")
 	}
 	return config
-}
-`
+}`

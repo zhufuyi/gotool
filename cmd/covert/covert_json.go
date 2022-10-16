@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const covertTypeJSON2Struct = "json"
+
 // JSON2StructCommand covert json to struct command
 func JSON2StructCommand() *cobra.Command {
 	var (
