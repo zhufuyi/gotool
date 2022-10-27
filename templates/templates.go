@@ -3,7 +3,7 @@ package templates
 import (
 	"embed"
 
-	"github.com/zhufuyi/goctl/pkg/replacer"
+	"github.com/zhufuyi/gotool/pkg/replacer"
 )
 
 // Replacers 模板名称对应的接口

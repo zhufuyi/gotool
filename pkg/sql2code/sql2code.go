@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/zhufuyi/goctl/pkg/sql2code/parser"
+	"github.com/zhufuyi/gotool/pkg/sql2code/parser"
 )
 
 // Args 参数

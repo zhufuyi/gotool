@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-goctl
+gotool
 
 # Test binary, built with `go test -c`
 *.test

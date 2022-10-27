@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zhufuyi/goctl/pkg/replacer"
+	"github.com/zhufuyi/gotool/pkg/replacer"
 
 	"github.com/spf13/cobra"
 )
@@ -23,10 +23,10 @@ func replaceCommand() *cobra.Command {
 
 Examples:
   # replace one field
-  goctl replace -p /tmp -o oldField -n newField
+  gotool replace -p /tmp -o oldField -n newField
 
   # replace multiple fields
-  goctl replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
+  gotool replace -p /tmp -o oldField1 -n newField1 -o oldField2 -n newField2
 
 `,
 		SilenceErrors: true,

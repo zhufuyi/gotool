@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zhufuyi/goctl/pkg/gofile"
+	"github.com/zhufuyi/gotool/pkg/gofile"
 )
 
 var _ Replacer = (*replacerInfo)(nil)

@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/zhufuyi/goctl/cmd"
+	"github.com/zhufuyi/gotool/cmd"
 )
 
 func main() {

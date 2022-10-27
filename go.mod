@@ -1,4 +1,4 @@
-module github.com/zhufuyi/goctl
+module github.com/zhufuyi/gotool
 
 go 1.19
 

@@ -3,7 +3,7 @@ package covert
 import (
 	"fmt"
 
-	"github.com/zhufuyi/goctl/pkg/sql2code"
+	"github.com/zhufuyi/gotool/pkg/sql2code"
 
 	"github.com/spf13/cobra"
 )
@@ -22,23 +22,23 @@ func SQL2GormCommand() *cobra.Command {
 
 Examples:
   # covert sql to gorm model code
-  goctl covert sql --sql="sql text"
+  gotool covert sql --sql="sql text"
 
   # covert sql file to gorm model code
-  goctl covert sql --file=test.sql
+  gotool covert sql --file=test.sql
 
   # covert mysql table gorm model code
-  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
+  gotool covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user
 
   # covert mysql table, structure fields correspond to the column names of the table.
-  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embed=false
+  gotool covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --embed=false
 
   # covert mysql table to handler request and respond struct code,  other type json or dao
-  goctl covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --code-type=handler
+  gotool covert sql --db-dsn=root:123456@(192.168.3.37:3306)/test --db-table=user --code-type=handler
 
   # covert sql file to gorm model code and add json tag
-  goctl covert sql --file=test.sql --pkg-name=user --json-tag
-  goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
+  gotool covert sql --file=test.sql --pkg-name=user --json-tag
+  gotool covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,

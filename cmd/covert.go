@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/zhufuyi/goctl/cmd/covert"
+	"github.com/zhufuyi/gotool/cmd/covert"
 
 	"github.com/spf13/cobra"
 )

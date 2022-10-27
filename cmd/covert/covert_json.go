@@ -3,7 +3,7 @@ package covert
 import (
 	"fmt"
 
-	"github.com/zhufuyi/goctl/pkg/jy2struct"
+	"github.com/zhufuyi/gotool/pkg/jy2struct"
 
 	"github.com/spf13/cobra"
 )
@@ -25,16 +25,16 @@ func JSON2StructCommand() *cobra.Command {
 
 Examples:
   # covert json to struct from data
-  goctl covert json --data="json text"
+  gotool covert json --data="json text"
 
   # covert json to struct from file
-  goctl covert json --file=test.json
+  gotool covert json --file=test.json
 
   # covert json to struct, set tag value
-  goctl covert json --file=test.json --tags=gorm
+  gotool covert json --file=test.json --tags=gorm
 
   # covert yaml to struct, save to specified directory, file name is config.go
-  goctl covert json --file=test.json --out=/tmp
+  gotool covert json --file=test.json --out=/tmp
 
 `,
 		SilenceErrors: true,

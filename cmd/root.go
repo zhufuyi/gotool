@@ -10,7 +10,7 @@ const Version = "0.0.0"
 // NewRootCMD 命令入口
 func NewRootCMD() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "goctl",
+		Use:           "gotool",
 		Long:          "go language development tools",
 		SilenceErrors: true,
 		SilenceUsage:  true,

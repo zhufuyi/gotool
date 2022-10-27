@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/zhufuyi/goctl/pkg/gofile"
-	"github.com/zhufuyi/goctl/pkg/jy2struct"
+	"github.com/zhufuyi/gotool/pkg/gofile"
+	"github.com/zhufuyi/gotool/pkg/jy2struct"
 
 	"github.com/spf13/cobra"
 )
@@ -28,13 +28,13 @@ func Yaml2StructCommand() *cobra.Command {
 
 Examples:
   # covert yaml to struct from data
-  goctl covert yaml --data="yaml text"
+  gotool covert yaml --data="yaml text"
 
   # covert yaml to struct from file
-  goctl covert yaml --file=test.yaml
+  gotool covert yaml --file=test.yaml
 
   # covert yaml to struct, set tag value, save to specified directory, file name is config.go
-  goctl covert yaml --file=test.yaml --tags=json --out=/tmp
+  gotool covert yaml --file=test.yaml --tags=json --out=/tmp
 
 `,
 		SilenceErrors: true,
