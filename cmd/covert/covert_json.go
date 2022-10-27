@@ -30,11 +30,12 @@ Examples:
   # covert json to struct from file
   goctl covert json --file=test.json
 
-  # covert json to struct, set tag value and subStruct flag
-  goctl covert json --file=test.json --tags=gorm --sub-struct=false
+  # covert json to struct, set tag value
+  goctl covert json --file=test.json --tags=gorm
 
   # covert yaml to struct, save to specified directory, file name is config.go
   goctl covert json --file=test.json --out=/tmp
+
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,

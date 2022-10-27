@@ -66,14 +66,17 @@ goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
 #### json to struct
 
 ```bash
-    # covert json to struct from data
-    goctl covert json --data="json text"
+  # covert json to struct from data
+  goctl covert json --data="json text"
 
-    # covert json to struct from file
-    goctl covert json --file=test.json
+  # covert json to struct from file
+  goctl covert json --file=test.json
 
-    # covert json to struct, set tag value and subStruct flag
-    goctl covert json --file=test.sql --tags=gorm --sub-struct=false
+  # covert json to struct, set tag value
+  goctl covert json --file=test.json --tags=gorm
+
+  # covert yaml to struct, save to specified directory, file name is config.go
+  goctl covert json --file=test.json --out=/tmp
 ```
 
 <br>
@@ -81,12 +84,12 @@ goctl covert sql --file=test.sql --pkg-name=user --json-tag --json-named-type=1
 #### yaml to struct
 
 ```bash
-    # covert yaml to struct from data
-    goctl covert yaml --data="yaml text"
+  # covert yaml to struct from data
+  goctl covert yaml --data="yaml text"
 
-    # covert yaml to struct from file
-    goctl covert yaml --file=test.json
+  # covert yaml to struct from file
+  goctl covert yaml --file=test.yaml
 
-    # covert yaml to struct, set tag value and subStruct flag
-    goctl covert yaml --file=test.sql --tags=gorm --sub-struct=false
+  # covert yaml to struct, set tag value, save to specified directory, file name is config.go
+  goctl covert yaml --file=test.yaml --tags=json --out=/tmp
 ```

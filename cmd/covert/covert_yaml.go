@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/zhufuyi/goctl/pkg/gofile"
 	"github.com/zhufuyi/goctl/pkg/jy2struct"
 
 	"github.com/spf13/cobra"
-	"github.com/zhufuyi/pkg/gofile"
 )
 
 const covertTypeYaml2Struct = "yaml"
@@ -27,11 +27,15 @@ func Yaml2StructCommand() *cobra.Command {
 		Long: `covert yaml to struct.
 
 Examples:
+  # covert yaml to struct from data
+  goctl covert yaml --data="yaml text"
+
   # covert yaml to struct from file
   goctl covert yaml --file=test.yaml
 
   # covert yaml to struct, set tag value, save to specified directory, file name is config.go
   goctl covert yaml --file=test.yaml --tags=json --out=/tmp
+
 `,
 		SilenceErrors: true,
 		SilenceUsage:  true,
@@ -51,7 +55,10 @@ Examples:
 		},
 	}
 
+	cmd.Flags().StringVarP(&ysArgs.Data, "data", "d", "", "yaml content")
 	cmd.Flags().StringVarP(&ysArgs.InputFile, "file", "f", "", "yaml file")
+	cmd.Flags().StringVarP(&ysArgs.Tags, "tags", "t", "", "struct tags, multiple tags separated by commas")
+	cmd.Flags().BoolVarP(&ysArgs.SubStruct, "sub-struct", "s", true, "create types for sub-structs (default is true)")
 	cmd.Flags().StringVarP(&outPath, "out", "o", "", "export the code path")
 	return cmd
 }
@@ -62,37 +69,10 @@ func saveFile(inputFile string, outPath string, code string) error {
 		return err
 	}
 	outFile := abs + gofile.GetPathDelimiter() + "config.go"
-	err = os.WriteFile(outFile, []byte(goParseCode+code), 0666)
+	err = os.WriteFile(outFile, []byte(code), 0666)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("covert '%s' to go struct successfully, output = %s\n\n", inputFile, outFile)
 	return nil
 }
-
-const goParseCode = `// nolint
-// code generated from config file.
-
-package config
-
-import "github.com/zhufuyi/pkg/conf"
-
-type Config = GenerateName
-
-var config *Config
-
-func Init(configFile string, fs ...func()) error {
-	config = &Config{}
-	return conf.Parse(configFile, config, fs...)
-}
-
-func Show() string {
-	return conf.Show(config)
-}
-
-func Get() *Config {
-	if config == nil {
-		panic("config is nil")
-	}
-	return config
-}`
